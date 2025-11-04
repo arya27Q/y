@@ -10,7 +10,5 @@ if ($conn->connect_error) {
 } else {
 echo "Koneksi berhasil!";
 }
- else {
- echo "Koneksi berhasil!";
- }
+
 ?>
