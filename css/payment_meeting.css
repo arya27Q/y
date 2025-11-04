@@ -47,22 +47,7 @@ nav a:hover {
   transform: scale(1.1);
 }
 
-.background {
-  height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  padding: 20px;
-  margin-bottom: 50px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.356), rgba(0, 0, 0, 0.4)),
-  url('/img/image\ 30\ \(1\).png');
-  background-blend-mode: darken;
 
-  
-}
 
 .background h1 {
   font-size: 6rem;

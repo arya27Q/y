@@ -74,8 +74,6 @@
     </div>
   </div>
 
-
- 
   <div class="payment-box">
     <h3>My Booking</h3>
     <ul id="booking-list"></ul>

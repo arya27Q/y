@@ -6,6 +6,26 @@
   <title>Luxury Hotel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../css/about.css">
+
+<style>
+.background {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('../img/j1.avif');
+  background-blend-mode: darken;
+  background-size: cover;      
+  background-position: center;  
+  background-repeat: no-repeat; 
+}
+</style>
+
 </head>
 <body id="top">
   <header>

@@ -6,6 +6,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../css/payment_meeting.css">
 </head>
+<style> .background {
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  margin-bottom: 50px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.356), rgba(0, 0, 0, 0.4)),
+  url('/img/image\ 30\ \(1\).png');
+  background-blend-mode: darken;
+
+  
+}</style>
 <body id="top">
 
 

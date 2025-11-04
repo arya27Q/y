@@ -143,7 +143,7 @@
       <h2>My Booking</h2>
   <ul id="my-booking-list"></ul>
   <p>Total : <span id="total-price">0</span></p>
-  <a href="payment_reservation_room.html" class="btn-book">Book Now</a>
+  <a href="payment_reservation_room.php" class="btn-book">Book Now</a>
 </div>
       </div>
     </section>
