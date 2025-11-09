@@ -24,7 +24,11 @@
     <i class="fa-solid fa-user"></i>
     <i class="fa-solid fa-caret-down"></i>
   </a>
-  <div class="dropdown" id="dropdownMenu"></div>
+  <div class="dropdown" id="dropdownMenu">
+    <?php 
+            include 'status_menu.php'; 
+        ?>
+  </div>
   </header>
 
   <section class="background-img" id="home">

@@ -18,7 +18,7 @@
   text-align: center;
   padding: 20px;
   background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-    url('../img/j1.avif');
+    url('../img/premium_photo-1661881436846-5a0f53025711.avif');
   background-blend-mode: darken;
   background-size: cover;      
   background-position: center;  
@@ -42,8 +42,11 @@
     <i class="fa-solid fa-user"></i>
     <i class="fa-solid fa-caret-down"></i>
   </a>
-  <div class="dropdown" id="dropdownMenu"></div>
-
+   <div class="dropdown" id="dropdownMenu">
+    <?php 
+            include 'status_menu.php'; 
+        ?>
+  </div>
   </header>
 
   <section class="background" id="home">

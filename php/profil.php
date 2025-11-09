@@ -1,3 +1,47 @@
+<?php
+session_start();
+require_once 'config.php'; 
+
+if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
+    header("Location: login.php");
+    exit();
+}
+
+$id_tamu = $_SESSION['id_tamu'];
+$tamu_data = null;
+
+
+$sql = "SELECT nama_lengkap, email, no_telepon, nik, alamat, password_hash, foto_profil FROM Tamu WHERE id_tamu = ?";
+$stmt = mysqli_prepare($conn, $sql);
+
+if ($stmt) {
+    mysqli_stmt_bind_param($stmt, "i", $id_tamu);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $tamu_data = mysqli_fetch_assoc($result);
+    mysqli_stmt_close($stmt);
+}
+
+if (!$tamu_data) {
+    header("Location: logout.php");
+    exit();
+}
+
+$username = htmlspecialchars($tamu_data['nama_lengkap']); 
+$email = htmlspecialchars($tamu_data['email']);
+$no_telepon = htmlspecialchars($tamu_data['no_telepon'] ?: 'Belum diisi'); 
+$alamat = htmlspecialchars($tamu_data['alamat'] ?: 'Belum diisi');
+$nik = htmlspecialchars($tamu_data['nik'] ?: 'Belum diisi');
+
+
+$display_password = '********'; 
+
+
+$has_profile_photo = (isset($tamu_data['foto_profil']) && $tamu_data['foto_profil']);
+$foto_profil_url = $has_profile_photo
+    ? htmlspecialchars($tamu_data['foto_profil']) 
+    : ''; 
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -19,35 +63,50 @@
       <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
-  <div class="user-menu">
-  <a class="a" href="#" id="userIcon">
-    <i class="fa-solid fa-user"></i>
-    <i class="fa-solid fa-caret-down"></i>
+ <div class="user-menu">
+  <a class="a" href="#" id="userIcon"style="color:#0026ff!important;">
+    <i class="fa-solid fa-user" style="color:#0026ff!important;"></i>
+  <i class="fa-solid fa-caret-down" style="color:#0026ff!important;"></i>
   </a>
-  <div class="dropdown" id="dropdownMenu"></div>
+  </div>
+  <div class="dropdown" id="dropdownMenu">
+    <?php 
+            include 'status_menu.php'; 
+        ?>
+  </div>
   </header>
 
    <section class="profile-banner">
-    <h1> EDIT PROFILE</h1>
+    <h1> MY PROFILE</h1>
   </section>
   
   <section class="bg">
   <section class="profile-section">
-    <h2 class="h2">Edit Profile</h2>
-    <div class="profile-card">
+    <h2 class="h2">MY Profile</h2>
+   <div class="profile-card"> 
+    <div class="profile-picture-container">
+        <?php if ($has_profile_photo): ?>
+            <!-- Jika ada foto di database, tampilkan sebagai IMG -->
+            <img id="profile-pic" src="<?php echo $foto_profil_url; ?>" alt="Foto Profil Pengguna">
+        <?php else: ?>
+            <!-- Jika tidak ada foto (placeholder), tampilkan ikon Font Awesome -->
+            <i class="fa-solid fa-user profile-icon-placeholder"></i>
+        <?php endif; ?>
+    </div>
       <h3>My Profile Account</h3>
      <form id="editForm">
   <div class="form-row">
-    <input type="text" id="user-name" placeholder="Username">
-    <input type="password" id="user-password" placeholder="Password">
-    <input type="text" id="user-address" placeholder="Address">
+    <input type="text" id="user-name" value="<?php echo $username; ?>" placeholder="Username" readonly>
+
+    <input type="password" id="user-password" value="<?php echo $display_password; ?>" placeholder="Password" readonly>
+    <input type="text" id="user-address" value="<?php echo $alamat; ?>" placeholder="Address" readonly>
   </div>
   <div class="form-row">
-    <input type="email" id="user-email" placeholder="Email">
-    <input type="text" id="user-phone" placeholder="62+ xxx xxx xxx">
-    <input type="text" id="user-nik" placeholder="NIK">
+    <input type="email" id="user-email" value="<?php echo $email; ?>" placeholder="Email" readonly>
+    <input type="text" id="user-phone" value="<?php echo $no_telepon; ?>" placeholder="62+ xxx xxx xxx" readonly>
+    <input type="text" id="user-nik" value="<?php echo $nik; ?>" placeholder="NIK" readonly>
   </div>
- <button type="button" class="save-btn" onclick="window.location.href='editprofil.html'">Edit Profil</button>
+ <button type="button" class="save-btn" onclick="window.location.href='editprofil.php'">Edit Profil</button>
 </form>
 
     </div>
@@ -74,7 +133,6 @@
   </div>
 </footer>
 
-  <script src="../js/profil.js"> </script>
   <script src="../js/user-section.js"></script>
  
 </body>

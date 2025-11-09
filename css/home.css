@@ -50,6 +50,7 @@ nav a:hover {
     color: #ffffff;
     transform: scale(1.1);
     transition: 0.3s;
+    border-radius: 40px;
 }
 .user-menu i {
   color: #0026ff; 
@@ -74,7 +75,7 @@ nav a:hover {
 .dropdown {
   position: absolute;
   top: 70%;
-  right: 4%;
+  right: 8%;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -88,7 +89,7 @@ nav a:hover {
 
 .dropdown a {
   color: #0026ff;
-  padding: 10px 16px;
+  padding: 10px 18px;
   text-decoration: none;
   transition: background 0.3s, color 0.3s;
 }

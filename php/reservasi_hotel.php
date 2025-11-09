@@ -36,15 +36,19 @@
         <a href="home.php">Home</a>
         <a href="reservasi_hotel.php">Room</a>
         <a href="meeting_reservasi.php">Meeting</a>
-        <a href="facilities.html">Facilities</a>
-        <a href="about.html">About us</a>
+        <a href="facilities.php">Facilities</a>
+        <a href="about.php">About us</a>
       </nav>
      <div class="user-menu">
   <a class="a" href="#" id="userIcon">
     <i class="fa-solid fa-user"></i>
     <i class="fa-solid fa-caret-down"></i>
   </a>
-  <div class="dropdown" id="dropdownMenu"></div>
+   <div class="dropdown" id="dropdownMenu">
+    <?php 
+            include 'status_menu.php'; 
+        ?>
+  </div>
     </header>
 
     <section class="background">

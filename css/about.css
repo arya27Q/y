@@ -43,8 +43,25 @@ nav a {
 nav a:hover {
   background: #0048ef;
   color: #ffffff;
+  transform: scale(1.1);
+  
 }
-
+.background {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 20px;
+  background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+    url('../img/j');
+  background-blend-mode: darken;
+  background-size: cover;      
+  background-position: center;  
+  background-repeat: no-repeat; 
+}
 
 .user-menu {
   position: relative;

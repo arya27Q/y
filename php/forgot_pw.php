@@ -13,9 +13,9 @@
         <img src="../img/logo.png" alt="Luxury Hotel Logo" class="logo">
       </header>
 
-      <form>
+      <form action="forgot_pw_process.php" method="POST">
         <section class="form-group">
-          <input type="email" placeholder="Enter your email" required>
+          <input type="email" placeholder="Enter your email" name="email" required>
         </section>
         <button type="submit" class="login-btn">Send Reset password</button>
       </form>

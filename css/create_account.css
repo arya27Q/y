@@ -60,13 +60,6 @@ body{
     font-size: 18px;
     font-weight: bold;
 }
-.fb { background: #3b5998; color: #fff; }
-.google { background: #db4437; color: #fff; }
-
-.or {
-    margin: 10px 0;
-    color: #bbb;
-}
 
 
 form input {
