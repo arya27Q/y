@@ -1,3 +1,63 @@
+<?php
+include 'config.php';
+session_start();
+header("Content-Type: text/html; charset=UTF-8");
+
+// kalau request dari JavaScript (fetch JSON)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_contains($_SERVER['CONTENT_TYPE'], 'application/json')) {
+    header("Content-Type: application/json");
+
+    $id_tamu = $_SESSION['id_tamu'] ?? null;
+    if (!$id_tamu) {
+        echo json_encode(["status" => "error", "message" => "Anda belum login."]);
+        exit;
+    }
+
+    $input = file_get_contents("php://input");
+    $data = json_decode($input, true);
+
+    // Debug log
+    file_put_contents("debug_reservasi.txt", print_r($data, true));
+
+    if (!isset($data["list"]) || !is_array($data["list"]) || !isset($data["total"])) {
+        echo json_encode(["status" => "error", "message" => "Data reservasi tidak valid."]);
+        exit;
+    }
+
+    $tanggal_reservasi = date('Y-m-d H:i:s');
+
+    foreach ($data['list'] as $item) {
+        $tipe_kamar = $item['name'] ?? '';
+        $harga = $item['price'] ?? 0;
+        $checkin = $item['checkin'] ?? date('Y-m-d');
+        $checkout = $item['checkout'] ?? date('Y-m-d', strtotime('+1 day'));
+        $jumlah_tamu = $item['jumlah_tamu'] ?? 1;
+
+        if (empty($tipe_kamar)) continue;
+
+        $sql_kamar = "SELECT id_kamar FROM kamar WHERE tipe_kamar = ? LIMIT 1";
+        $stmt_kamar = $conn->prepare($sql_kamar);
+        $stmt_kamar->bind_param("s", $tipe_kamar);
+        $stmt_kamar->execute();
+        $result = $stmt_kamar->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $id_kamar = $row['id_kamar'];
+
+            $sql_insert = "INSERT INTO reservasi_kamar 
+                (id_tamu, id_kamar, tanggal_reservasi, tanggal_check_in, tanggal_check_out, jumlah_tamu, tipe_kamar_dipesan, total_biaya, status_reservasi)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked')";
+            $stmt_insert = $conn->prepare($sql_insert);
+            $stmt_insert->bind_param("iisssisd", $id_tamu, $id_kamar, $tanggal_reservasi, $checkin, $checkout, $jumlah_tamu, $tipe_kamar, $harga);
+            $stmt_insert->execute();
+        }
+    }
+
+    echo json_encode(["status" => "success", "message" => "Reservasi berhasil disimpan."]);
+    exit; // stop di sini biar HTML nggak ikut ke kirim
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -6,29 +66,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Luxury Hotel</title>
 
-    <link rel="stylesheet"href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="../css/reservasi_room.css" />
-     <script src="../js/reservation_room.js"></script>
-    <script src="../js/user-section.js"></script>
-
- <style>
-        .background {
-  height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  padding: 20px;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.356), rgba(0, 0, 0, 0.4)),
-  url('../img/re.png');
-  background-blend-mode: darken;
-
-}
-      </style>
-  
+    <style>
+      .background {
+        height: 60vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        padding: 20px;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.356), rgba(0, 0, 0, 0.4)), url('../img/re.png');
+        background-blend-mode: darken;
+      }
+    </style>
   </head>
+
   <body>
     <header>
       <img src="../img/logo.png" alt="Luxury Hotel" />
@@ -39,120 +94,86 @@
         <a href="facilities.php">Facilities</a>
         <a href="about.php">About us</a>
       </nav>
-     <div class="user-menu">
-  <a class="a" href="#" id="userIcon">
-    <i class="fa-solid fa-user"></i>
-    <i class="fa-solid fa-caret-down"></i>
-  </a>
-   <div class="dropdown" id="dropdownMenu">
-    <?php 
-            include 'status_menu.php'; 
-        ?>
-  </div>
+      <div class="user-menu">
+        <a class="a" href="#" id="userIcon">
+          <i class="fa-solid fa-user"></i>
+          <i class="fa-solid fa-caret-down"></i>
+        </a>
+        <div class="dropdown" id="dropdownMenu">
+          <?php include 'status_menu.php'; ?>
+        </div>
+      </div>
     </header>
 
     <section class="background">
-
-    <h1>RESERVATION ROOM</h1>
+      <h1>RESERVATION ROOM</h1>
     </section>
+
     <section class="why">
       <h2 class="stay">
-        Book Your Stay With Us Start your unforgettable Jakarta
-        experience—choose your dates and reserve your room today!
+        Book Your Stay With Us Start your unforgettable Jakarta experience—choose your dates and reserve your room today!
       </h2>
       <h2>✨ Why Choose Us?</h2>
-      <p>
-        ✔ Prime Location:Situated in MGK Kemayoran, our hotel places you close
-        to the city's major business hubs and entertainment spots. Easily access
-        public transport and explore Jakarta without hassle.
-      </p>
-      <p>
-        ✔ Smart, Stylish Rooms:Our 31 air-conditioned rooms are thoughtfully
-        designed for both comfort and productivity. Enjoy high-speed
-        Wi-Fi, smart TVs, workstations, and private bathrooms. Smoking and
-        non-smoking options are available, and some rooms offer unique layouts
-        without windows.
-      </p>
-      <p>
-        ✔ In-House Entertainment:Unwind at our karaoke lounge, indulge in spa
-        treatments, or experience Jakarta's nightlife vibes right inside the
-        hotel with our lively bar and lounge.
-      </p>
-      <p>
-        ✔ 24/7 Services:We offer round-the-clock room service, a 24-hour front
-        desk, and on-site parking (with additional charge), making sure your
-        stay is as seamless as it is stylish.
-      </p>
-      <p>
-        ✔ Affordable Luxury:Get the boutique experience without breaking the
-        bank. We combine premium amenities with competitive rates to give you
-        the best value in Jakarta.
-      </p>
+      <p>✔ Prime Location ...</p>
+      <p>✔ Smart, Stylish Rooms ...</p>
+      <p>✔ In-House Entertainment ...</p>
+      <p>✔ 24/7 Services ...</p>
+      <p>✔ Affordable Luxury ...</p>
     </section>
-    
-        <section class="bg2">
-        <section class="hotel-title">
+
+    <section class="bg2">
+      <section class="hotel-title">
         <div class="hotel-details">
           <h2>Luxury Hotel Surabaya ⭐⭐⭐⭐⭐</h2>
         </div>
-        </section>
+      </section>
 
-    <section class="reservation">
-      <div class="hotel-info">
-       <div class="date-form">
-  <label>
-    Check-in
-    <input type="date" id="checkin"  />
-  </label>
-  <label>
-    Check-out
-    <input type="date" id="checkout" />
-  </label>
-  <label>
-    Order date
-    <input type="date" id="orderdate"  />
-  </label>
-</div>
+      <section class="reservation">
+        <div class="hotel-info">
+          <div class="date-form">
+            <label>Check-in <input type="date" id="checkin" /></label>
+            <label>Check-out <input type="date" id="checkout" /></label>
+            <label>Order date <input type="date" id="orderdate" /></label>
+          </div>
 
-      <div class="booking-list">
-        <div class="room-card">
-          <img src="../img/standartroom.png" alt="Standard Room" />
-          <h3>Standard Room</h3>
-          <p>Rp.250.000,00</p>
-          <div class="options">
-            <button onclick="addBooking('Standard Room', 250000)">select </button>
+          <div class="booking-list">
+            <div class="room-card">
+              <img src="../img/standartroom.png" alt="Standard Room" />
+              <h3>Standard Room</h3>
+              <p>Rp.250.000,00</p>
+              <div class="options">
+                <button onclick="addBooking('Standard Room', 250000)">Select</button>
+              </div>
+            </div>
+
+            <div class="room-card">
+              <img src="../img/Suite.png" alt="Suite Room" />
+              <h3>Suite Room</h3>
+              <p>Rp.750.000,00</p>
+              <div class="options">
+                <button onclick="addBooking('Suite Room', 750000)">Select</button>
+              </div>
+            </div>
+
+            <div class="room-card">
+              <img src="../img/room.png" alt="Deluxe Room" />
+              <h3>Deluxe Room</h3>
+              <p>Rp.550.000,00</p>
+              <div class="options">
+                <button onclick="addBooking('Deluxe Room', 550000)">Select</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="my-booking">
+            <h2>My Booking</h2>
+            <ul id="my-booking-list"></ul>
+            <p>Total : <span id="total-price">0</span></p>
+            <button id="bookNow" class="btn-book">Book Now</button>
           </div>
         </div>
-
-        <div class="room-card">
-          <img src="../img/Suite.png" alt="Suite Room" />
-          <h3>Suite Room</h3>
-          <p>Rp.750.000,00</p>
-          <div class="options">
-            <button onclick="addBooking('Suite Room', 750000)">Select</button>
-          </div>
-        </div>
-
-        <div class="room-card">
-          <img src="../img/room.png" alt="Deluxe Room" />
-          <h3>Deluxe Room</h3>
-          <p>Rp.550.000,00</p>
-          <div class="options">
-            <button onclick="addBooking('Deluxe Room', 550000)">Select</button>
-          </div>
-        </div>
-      </div>
-
-    <div class="my-booking">
-      <h2>My Booking</h2>
-  <ul id="my-booking-list"></ul>
-  <p>Total : <span id="total-price">0</span></p>
-  <a href="payment_reservation_room.php" class="btn-book">Book Now</a>
-</div>
-      </div>
+      </section>
     </section>
-        </section>
-        
 
     <footer>
       <div class="footer-container">
@@ -162,9 +183,7 @@
           <p>Your Comfort, Our Priority</p>
         </div>
         <div class="footer-center">
-          <a href="#top" class="btn back-top">
-            <i class="fa-solid fa-arrow-up"></i> Back to Top
-          </a>
+          <a href="#top" class="btn back-top"><i class="fa-solid fa-arrow-up"></i> Back to Top</a>
         </div>
         <div class="footer-right">
           <p><i class="fa-brands fa-instagram"></i> @luxuryhotel</p>
@@ -173,5 +192,8 @@
         </div>
       </div>
     </footer>
+
+    <script src="../js/reservation_room.js"></script>
+    <script src="../js/user-section.js"></script>
   </body>
 </html>

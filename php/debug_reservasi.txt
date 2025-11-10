@@ -1,0 +1,24 @@
+Array
+(
+    [list] => Array
+        (
+            [0] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [1] => Array
+                (
+                    [name] => Suite Room
+                    [price] => 750000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+        )
+
+    [total] => 1000000
+)

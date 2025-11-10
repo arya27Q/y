@@ -10,48 +10,60 @@ body {
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 50px;
-    background: var(--white);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 50px;
+  background: #ffffff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: inset 0 0 10px rgba(72, 72, 72, 0.5);
+  
 }
 
 header img {
-    height: 70px;
-   
+  height: 70px;
+  animation: fadeIn 1s ease forwards;
 }
 
 nav a {
-    margin: 0 10px;
-    text-decoration: none;
-    color: #000;
-    font-weight: 500;
-    padding: 8px 15px;
-    border-radius: 25px; 
-    display: inline-block;
-    transition: 0.3s;
+  margin: 0 15px;
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 5px;
+  display: inline-block;
+  transition: background 0.3s, color 0.3s, transform 0.3s;
+  
 }
 
 nav a:hover {
-    background: #0026ff;
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 38, 255, 0.3);
-    border-radius: 40px;
+  background: #0026ff;
+  color: #ffffff;
+  transform: scale(1.1);
+  border-radius: 40px;
 }
 
 
 
+@keyframes fadeInText {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .background h1 {
-  font-size: 6rem;
+  font-size: 4rem;
   margin-top: 10px;
   display: inline-block;
- 
+  animation: fadeInText 1.5s ease forwards;
 }
 
 
@@ -110,6 +122,8 @@ nav a:hover {
   }
 }
 
+
+
 .why {
   padding: 40px 50px;
 }
@@ -118,7 +132,7 @@ nav a:hover {
 }
 .bg2{
     
-  background: #cd9a00;
+  background: #cb9200;
   color: #fff;
   padding: 40px 20px; 
   text-align: center;
@@ -142,6 +156,7 @@ nav a:hover {
   margin-bottom: 10px;
   color: #333;
 
+  
 }
 .hotel-title .hotel-details p {
   font-size: 16px;
@@ -201,6 +216,7 @@ nav a:hover {
   margin-left: 8px;
 
 }
+
 
 .booking-list {
   flex: 3;
@@ -270,7 +286,7 @@ nav a:hover {
 
 .my-booking h2 {
   color: #004aad;
-  border:2px solid #000095;
+   border:2px solid #000095;
    padding: 10px 0;
    margin: 10px;
    border-radius: 10px;
@@ -283,7 +299,7 @@ nav a:hover {
   border-bottom: 1px solid #000000;
 }
 .my-booking li {
-  margin-bottom: 8px;
+   margin-bottom: 8px;
   font-size: 15px;
   color: #333;
   padding: 6px 0;        
@@ -293,23 +309,29 @@ nav a:hover {
   border-bottom: none;   
 }
 
- .btn-book {
+.btn-book {
+  background: #004aed;
+  color: #fff !important;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 11px 15px;
+  border-radius: 15px;
   display: inline-block;
-  background: #0026ff;
-  color: #ffffff !important;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  margin-top: 10px;
   text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  position: relative; 
+  z-index: 1;
+  border: none;
+  outline: none;
 }
 
 
 .btn-book:hover {
   background: #001bb3;
-  transform: scale(1.05);
+  transform: translateY(-6px) scale(1.07); 
+  box-shadow: 0 12px 25px rgba(0, 70, 255, 0.45); 
+
 }
 
 footer {
@@ -413,7 +435,6 @@ nav a {
   
 }
 
-
 section, .why, .hotel-title, .reservation, .my-booking, footer {
   opacity: 0;
   animation: fadeInUp 1.2s ease forwards;
@@ -424,21 +445,21 @@ section, .why, .hotel-title, .reservation, .my-booking, footer {
   animation: zoomIn 1s ease forwards;
 }
 
-button, .button2, .a, .back-top {
+button, .a, .back-top {
   position: relative;
   overflow: hidden;
 }
 
-button::after, .button2::after, .a::after, .back-top::after {
+button::after, .a::after, .back-top::after {
   content: "";
   position: absolute;
   top: 0; left: -100%;
   width: 100%; height: 100%;
   background: rgba(255, 255, 255, 0.3);
-  transition: all 0.4s ease;
+  transition: all 0.5s ease;
 }
 
-button:hover::after, .button2:hover::after, .a:hover::after, .back-top:hover::after {
+button:hover::after,  .a:hover::after, .back-top:hover::after {
   left: 100%;
 }
 
