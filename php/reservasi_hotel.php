@@ -29,28 +29,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_contains($_SERVER['CONTENT_TYPE
 
     foreach ($data['list'] as $item) {
         $tipe_kamar = $item['name'] ?? '';
-        $harga = $item['price'] ?? 0;
-        $checkin = $item['checkin'] ?? date('Y-m-d');
-        $checkout = $item['checkout'] ?? date('Y-m-d', strtotime('+1 day'));
+        // HARGA YANG DITERIMA DARI JS HANYA HARGA PER MALAM
+        $harga_per_malam_dari_js = $item['price'] ?? 0; 
+        
+        $checkin_str = $item['checkin'] ?? date('Y-m-d');
+        $checkout_str = $item['checkout'] ?? date('Y-m-d', strtotime('+1 day'));
         $jumlah_tamu = $item['jumlah_tamu'] ?? 1;
 
-        if (empty($tipe_kamar)) continue;
+        if (empty($tipe_kamar) || $harga_per_malam_dari_js <= 0) continue;
 
-        $sql_kamar = "SELECT id_kamar FROM kamar WHERE tipe_kamar = ? LIMIT 1";
-        $stmt_kamar = $conn->prepare($sql_kamar);
-        $stmt_kamar->bind_param("s", $tipe_kamar);
-        $stmt_kamar->execute();
-        $result = $stmt_kamar->get_result();
+        // --- PENTING: PERHITUNGAN DURASI MENGINAP (PHP) ---
+        try {
+            $checkin = new DateTime($checkin_str);
+            $checkout = new DateTime($checkout_str);
+            $interval = $checkin->diff($checkout);
+            $jumlah_malam = $interval->days;
+
+            if ($jumlah_malam <= 0) {
+                $jumlah_malam = 1;
+            }
+        } catch (Exception $e) {
+            $jumlah_malam = 1; 
+        }
+
+        // PENTING: Hitung TOTAL BIAYA = Harga Per Malam * Jumlah Malam
+        $total_biaya = $harga_per_malam_dari_js * $jumlah_malam; 
+        // ------------------------------------------
+
+        // Cek ID Kamar dan Lanjutkan INSERT
+        // ... (Kode untuk SELECT id_kamar) ...
 
         if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-            $id_kamar = $row['id_kamar'];
-
+            // ...
             $sql_insert = "INSERT INTO reservasi_kamar 
                 (id_tamu, id_kamar, tanggal_reservasi, tanggal_check_in, tanggal_check_out, jumlah_tamu, tipe_kamar_dipesan, total_biaya, status_reservasi)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked')";
             $stmt_insert = $conn->prepare($sql_insert);
-            $stmt_insert->bind_param("iisssisd", $id_tamu, $id_kamar, $tanggal_reservasi, $checkin, $checkout, $jumlah_tamu, $tipe_kamar, $harga);
+            // PENTING: Bind variabel $total_biaya (BUKAN $harga_per_malam_dari_js)
+            $stmt_insert->bind_param("iisssisd", $id_tamu, $id_kamar, $tanggal_reservasi, $checkin_str, $checkout_str, $jumlah_tamu, $tipe_kamar, $total_biaya);
             $stmt_insert->execute();
         }
     }

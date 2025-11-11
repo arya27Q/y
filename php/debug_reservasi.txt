@@ -7,50 +7,20 @@ Array
                     [name] => Standard Room
                     [price] => 250000
                     [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
+                    [checkout] => 2025-11-18
+                    [jumlah_tamu] => 1
                 )
 
             [1] => Array
                 (
-                    [name] => Standard Room
-                    [price] => 250000
+                    [name] => Suite Room
+                    [price] => 750000
                     [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
-                )
-
-            [2] => Array
-                (
-                    [name] => Standard Room
-                    [price] => 250000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
-                )
-
-            [3] => Array
-                (
-                    [name] => Standard Room
-                    [price] => 250000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
-                )
-
-            [4] => Array
-                (
-                    [name] => Standard Room
-                    [price] => 250000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
-                )
-
-            [5] => Array
-                (
-                    [name] => Standard Room
-                    [price] => 250000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-12
+                    [checkout] => 2025-11-18
+                    [jumlah_tamu] => 1
                 )
 
         )
 
-    [total] => 1500000
+    [total] => 7000000
 )

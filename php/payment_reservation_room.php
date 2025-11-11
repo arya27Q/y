@@ -12,25 +12,66 @@ if (!$id_tamu) {
 
 // === HANDLE PEMBAYARAN ===
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
-  $method = $_POST['method'];
-  $update = $conn->prepare("UPDATE reservasi_kamar SET status_reservasi = 'Paid', metode_pembayaran = ?, tanggal_pembayaran = NOW() WHERE id_tamu = ? AND status_reservasi = 'Booked'");
-  $update->bind_param("si", $method, $id_tamu);
-  $update->execute();
+    $method = $_POST['method'];
 
-  if ($update->affected_rows > 0) {
-    echo json_encode(["success" => true]);
-  } else {
-    echo json_encode(["success" => false, "message" => "Tidak ada pesanan aktif atau sudah dibayar."]);
-  }
-  exit;
+    // Pertama, cari timestamp pesanan terbaru yang 'Booked'
+    $sql_latest_time = "SELECT MAX(tanggal_reservasi) AS latest_time 
+                        FROM reservasi_kamar 
+                        WHERE id_tamu = ? AND status_reservasi = 'Booked'";
+    $stmt_time = $conn->prepare($sql_latest_time);
+    $stmt_time->bind_param("i", $id_tamu);
+    $stmt_time->execute();
+    $latest_time = $stmt_time->get_result()->fetch_assoc()['latest_time'];
+    $stmt_time->close();
+
+    if ($latest_time) {
+        // UPDATE semua kamar yang memiliki timestamp terbaru tersebut
+        $update = $conn->prepare("UPDATE reservasi_kamar SET status_reservasi = 'Paid', metode_pembayaran = ?, tanggal_pembayaran = NOW() 
+                                  WHERE id_tamu = ? AND status_reservasi = 'Booked' AND tanggal_reservasi = ?");
+        $update->bind_param("sis", $method, $id_tamu, $latest_time);
+        $update->execute();
+
+        if ($update->affected_rows > 0) {
+            echo json_encode(["success" => true]);
+        } else {
+            echo json_encode(["success" => false, "message" => "Tidak ada pesanan aktif yang belum dibayar saat ini."]);
+        }
+        $update->close();
+    } else {
+        echo json_encode(["success" => false, "message" => "Tidak ada pesanan aktif atau sudah dibayar."]);
+    }
+    exit;
 }
 
 // === AMBIL DATA RESERVASI ===
-$sql = "SELECT * FROM reservasi_kamar WHERE id_tamu = ? ORDER BY tanggal_reservasi DESC";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $id_tamu);
-$stmt->execute();
-$result = $stmt->get_result();
+$sql_latest_time = "SELECT MAX(tanggal_reservasi) AS latest_time 
+                    FROM reservasi_kamar 
+                    WHERE id_tamu = ? AND status_reservasi = 'Booked'";
+$stmt_time = $conn->prepare($sql_latest_time);
+$stmt_time->bind_param("i", $id_tamu);
+$stmt_time->execute();
+$result_time = $stmt_time->get_result();
+$latest_time = $result_time->fetch_assoc()['latest_time'];
+$stmt_time->close();
+
+// Jika tidak ada pesanan 'Booked' sama sekali, set result kosong
+if (!$latest_time) {
+    $result = new mysqli_result(new mysqli()); // Membuat hasil kosong
+} else {
+    // 2. Ambil SEMUA reservasi yang memiliki tanggal_reservasi yang sama dengan yang terbaru
+    $sql = "SELECT * FROM reservasi_kamar 
+            WHERE id_tamu = ? 
+            AND status_reservasi = 'Booked' 
+            AND tanggal_reservasi = ? 
+            ORDER BY tanggal_reservasi DESC";
+
+    $stmt = $conn->prepare($sql);
+    // Bind parameter: integer (id_tamu) dan string (tanggal_reservasi)
+    $stmt->bind_param("is", $id_tamu, $latest_time); 
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+}
 
 $total_semua = 0;
 ?>

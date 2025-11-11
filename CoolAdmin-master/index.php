@@ -2,6 +2,10 @@
 // Impor file koneksi database
 include_once '../php/config.php';
 
+if (isset($_GET['update']) && $_GET['update'] == 'success') {
+    echo '<div class="alert alert-success" role="alert">Status reservasi berhasil diperbarui!</div>';
+}
+
 // Query SQL untuk mengambil data reservasi kamar yang berstatus 'Booked'
 // Menggabungkan tabel reservasi_kamar, tamu, dan kamar
 $sql = "SELECT
@@ -11,6 +15,7 @@ $sql = "SELECT
             rk.jumlah_tamu,
             rk.tipe_kamar_dipesan,
             rk.total_biaya,
+            rk.status_reservasi,  -- PASTIKAN KOLOM INI ADA
             t.nama_lengkap,
             t.email,
             t.no_telepon,
@@ -20,9 +25,7 @@ $sql = "SELECT
         JOIN
             tamu t ON rk.id_tamu = t.id_tamu
         LEFT JOIN
-            kamar k ON rk.id_kamar = k.id_kamar
-        WHERE
-            rk.status_reservasi = 'Booked'";
+            kamar k ON rk.id_kamar = k.id_kamar";
 
 $result = mysqli_query($conn, $sql);
 ?>
@@ -113,10 +116,7 @@ $result = mysqli_query($conn, $sql);
                             <a href="table.html">
                                 <i class="fas fa-table"></i>Tables</a>
                         </li>
-                        <li>
-                            <a href="form.html">
-                                <i class="far fa-check-square"></i>Forms</a>
-                        </li>
+                       
                       
                         <li class="has-sub">
                             <a class="js-arrow" href="#">
@@ -459,41 +459,58 @@ $result = mysqli_query($conn, $sql);
                         <th>ID Reservasi</th>
                         <th>Nama Tamu</th>
                         <th>Email</th>
-                        <th>No. Telepon</th>
                         <th>Tipe Kamar</th>
-                        <th>Nomor Kamar</th>
                         <th>Check-in</th>
-                        <th>Check-out</th>
-                        <th class="text-end">Total Biaya (Rp)</th>
-                    </tr>
+                        <th>Status Saat Ini</th>
+                        <th>Pilih Status Baru</th> <th class="text-center">Aksi</th> </tr>
                 </thead>
                 <tbody>
                     <?php
                     // Cek jika ada hasil
-                    if ($result && mysqli_num_rows($result) > 0) {
-                        // Loop untuk menampilkan setiap baris data
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            // Format mata uang Rupiah
-                            $biaya_formatted = number_format($row['total_biaya'], 2, ',', '.');
-                            // Tampilkan nomor kamar, jika NULL (belum dialokasikan) tampilkan tanda "-"
-                            $nomor_kamar = $row['nomor_kamar'] ?? '-'; 
-                            
-                            echo "<tr>";
-                            echo "<td>" . htmlspecialchars($row['id_reservasi']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['nama_lengkap']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['no_telepon']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['tipe_kamar_dipesan']) . "</td>";
-                            echo "<td>" . htmlspecialchars($nomor_kamar) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['tanggal_check_in']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['tanggal_check_out']) . "</td>";
-                            echo "<td class='text-end'>" . $biaya_formatted . "</td>";
-                            echo "</tr>";
-                        }
-                    } else {
-                        // Tampilkan pesan jika tidak ada data
-                        echo "<tr><td colspan='9' class='text-center'>Tidak ada reservasi kamar dengan status 'Booked' saat ini.</td></tr>";
-                    }
+if ($result && mysqli_num_rows($result) > 0) {
+    // Array status yang valid sesuai ENUM di database
+    $statuses = ['Booked', 'Checked-In', 'Checked-Out', 'Canceled'];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<tr>";
+        echo "<td>" . htmlspecialchars($row['id_reservasi']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['nama_lengkap']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['tipe_kamar_dipesan']) . "</td>";
+        echo "<td>" . htmlspecialchars($row['tanggal_check_in']) . "</td>";
+
+        // Status Saat Ini
+        echo "<td><strong>" . htmlspecialchars($row['status_reservasi']) . "</strong></td>";
+
+        // Form untuk Update Status
+        echo "<form method='POST' action='update_status.php'>";
+        echo "<input type='hidden' name='id_reservasi' value='" . $row['id_reservasi'] . "'>";
+        
+        // Pilih Status Baru (Dropdown)
+        echo "<td>";
+        echo "<select name='new_status' class='form-control form-control-sm' style='width: auto;'>";
+        foreach ($statuses as $status) {
+            $selected = ($status == $row['status_reservasi']) ? 'selected' : '';
+            echo "<option value='{$status}' {$selected}>{$status}</option>";
+        }
+        echo "</select>";
+        echo "</td>";
+
+        // Tombol Aksi
+        echo "<td class='text-center'>";
+        echo "<button type='submit' class='btn btn-primary btn-sm' style='padding: 5px 10px;'>";
+        echo "<i class='fa fa-edit'></i> Update";
+        echo "</button>";
+        echo "</td>";
+        echo "</form>"; 
+
+        echo "</tr>";
+    }
+} else {
+    echo "<tr><td colspan='8' class='text-center'>Tidak ada reservasi kamar dengan status 'Booked' saat ini.</td></tr>";
+}
+// Tutup koneksi database setelah selesai
+mysqli_close($conn);
                     ?>
                 </tbody>
             </table>
