@@ -4,13 +4,53 @@ Array
         (
             [0] => Array
                 (
-                    [name] => Suite Room
-                    [price] => 750000
-                    [checkin] => 2025-11-19
-                    [checkout] => 2025-11-25
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [1] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [2] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [3] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [4] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
+                )
+
+            [5] => Array
+                (
+                    [name] => Standard Room
+                    [price] => 250000
+                    [checkin] => 2025-11-11
+                    [checkout] => 2025-11-12
                 )
 
         )
 
-    [total] => 750000
+    [total] => 1500000
 )

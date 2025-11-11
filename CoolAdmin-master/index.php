@@ -1,3 +1,31 @@
+<?php
+// Impor file koneksi database
+include_once '../php/config.php';
+
+// Query SQL untuk mengambil data reservasi kamar yang berstatus 'Booked'
+// Menggabungkan tabel reservasi_kamar, tamu, dan kamar
+$sql = "SELECT
+            rk.id_reservasi,
+            rk.tanggal_check_in,
+            rk.tanggal_check_out,
+            rk.jumlah_tamu,
+            rk.tipe_kamar_dipesan,
+            rk.total_biaya,
+            t.nama_lengkap,
+            t.email,
+            t.no_telepon,
+            k.nomor_kamar
+        FROM
+            reservasi_kamar rk
+        JOIN
+            tamu t ON rk.id_tamu = t.id_tamu
+        LEFT JOIN
+            kamar k ON rk.id_kamar = k.id_kamar
+        WHERE
+            rk.status_reservasi = 'Booked'";
+
+$result = mysqli_query($conn, $sql);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -422,92 +450,56 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-12">
-                                <h2 class="title-1 m-b-25">Earnings By Items</h2>
-                                <div class="table-responsive table--no-card m-b-40">
-                                    <table class="table table-borderless table-striped table-earning">
-                                        <thead>
-                                            <tr>
-                                                <th>date</th>
-                                                <th>order ID</th>
-                                                <th>name</th>
-                                                <th class="text-end">price</th>
-                                                <th class="text-end">quantity</th>
-                                                <th class="text-end">total</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>2025-01-15 14:32</td>
-                                                <td>100398</td>
-                                                <td>iPhone 17 128GB Titanium</td>
-                                                <td class="text-end">$1299.00</td>
-                                                <td class="text-end">1</td>
-                                                <td class="text-end">$999.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-14 10:18</td>
-                                                <td>100397</td>
-                                                <td>Samsung Galaxy S25 Ultra</td>
-                                                <td class="text-end">$1199.00</td>
-                                                <td class="text-end">1</td>
-                                                <td class="text-end">$756.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-13 16:45</td>
-                                                <td>100396</td>
-                                                <td>PS5 Pro DualSense Controller</td>
-                                                <td class="text-end">$79.00</td>
-                                                <td class="text-end">2</td>
-                                                <td class="text-end">$44.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-12 09:23</td>
-                                                <td>100395</td>
-                                                <td>iPhone 17 Pro Max 1TB Space Black</td>
-                                                <td class="text-end">$1699.00</td>
-                                                <td class="text-end">1</td>
-                                                <td class="text-end">$1199.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-11 13:17</td>
-                                                <td>100393</td>
-                                                <td>USB-C to USB-C Thunderbolt 5 Cable</td>
-                                                <td class="text-end">$29.00</td>
-                                                <td class="text-end">3</td>
-                                                <td class="text-end">$30.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-10 11:55</td>
-                                                <td>100392</td>
-                                                <td>Apple Watch Series 11 Ultra</td>
-                                                <td class="text-end">$899.00</td>
-                                                <td class="text-end">6</td>
-                                                <td class="text-end">$1494.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-09 15:42</td>
-                                                <td>100391</td>
-                                                <td>Sony A7R VI Mirrorless Camera</td>
-                                                <td class="text-end">$3899.00</td>
-                                                <td class="text-end">1</td>
-                                                <td class="text-end">$699.00</td>
-                                            </tr>
-                                            <tr>
-                                                <td>2025-01-08 08:29</td>
-                                                <td>100393</td>
-                                                <td>USB-C to Lightning Cable 2m</td>
-                                                <td class="text-end">$19.00</td>
-                                                <td class="text-end">3</td>
-                                                <td class="text-end">$30.00</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                            </div>
-                        </div>
+    <div class="col-lg-12">
+        <h2 class="title-1 m-b-25">Daftar Tamu Booking Kamar (Status: Booked)</h2>
+        <div class="table-responsive table--no-card m-b-40">
+            <table class="table table-borderless table-striped table-earning">
+                <thead>
+                    <tr>
+                        <th>ID Reservasi</th>
+                        <th>Nama Tamu</th>
+                        <th>Email</th>
+                        <th>No. Telepon</th>
+                        <th>Tipe Kamar</th>
+                        <th>Nomor Kamar</th>
+                        <th>Check-in</th>
+                        <th>Check-out</th>
+                        <th class="text-end">Total Biaya (Rp)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    // Cek jika ada hasil
+                    if ($result && mysqli_num_rows($result) > 0) {
+                        // Loop untuk menampilkan setiap baris data
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            // Format mata uang Rupiah
+                            $biaya_formatted = number_format($row['total_biaya'], 2, ',', '.');
+                            // Tampilkan nomor kamar, jika NULL (belum dialokasikan) tampilkan tanda "-"
+                            $nomor_kamar = $row['nomor_kamar'] ?? '-'; 
+                            
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row['id_reservasi']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['nama_lengkap']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['no_telepon']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['tipe_kamar_dipesan']) . "</td>";
+                            echo "<td>" . htmlspecialchars($nomor_kamar) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['tanggal_check_in']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['tanggal_check_out']) . "</td>";
+                            echo "<td class='text-end'>" . $biaya_formatted . "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        // Tampilkan pesan jika tidak ada data
+                        echo "<tr><td colspan='9' class='text-center'>Tidak ada reservasi kamar dengan status 'Booked' saat ini.</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
                         <div class="row">
                             <div class="col-lg-6">
                             </div>
