@@ -6,8 +6,8 @@ Array
                 (
                     [name] => Standard Room
                     [price] => 250000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-18
+                    [checkin] => 2025-11-15
+                    [checkout] => 2025-11-19
                     [jumlah_tamu] => 1
                 )
 
@@ -15,12 +15,12 @@ Array
                 (
                     [name] => Suite Room
                     [price] => 750000
-                    [checkin] => 2025-11-11
-                    [checkout] => 2025-11-18
+                    [checkin] => 2025-11-15
+                    [checkout] => 2025-11-19
                     [jumlah_tamu] => 1
                 )
 
         )
 
-    [total] => 7000000
+    [total] => 4000000
 )
