@@ -1,15 +1,10 @@
-
 <?php
 include 'config.php';
 session_start();
 header("Content-Type: text/html; charset=UTF-8");
 date_default_timezone_set('Asia/Jakarta');
 
-// kalau request dari JavaScript (fetch JSON)
-// GANTI BAGIAN INI:
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && str_contains($_SERVER['CONTENT_TYPE'], 'application/json')) {
 
-// DENGAN BAGIAN INI (MENGGUNAKAN strpos):
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
     header("Content-Type: application/json");
 
@@ -31,7 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
     }
 
     $tanggal_reservasi = date('Y-m-d H:i:s');
-    $reservasi_berhasil = false; // Tandai apakah ada yang berhasil
+    
+    $reservasi_berhasil_semua = true; // Melacak status semua item
+    $conn->autocommit(FALSE); // Mulai mode transaksi
 
     foreach ($data['list'] as $item) {
         $tipe_kamar = $item['name'] ?? '';
@@ -41,9 +38,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
         $checkout_str = $item['checkout'] ?? date('Y-m-d', strtotime('+1 day'));
         $jumlah_tamu = $item['jumlah_tamu'] ?? 1;
 
-        if (empty($tipe_kamar) || $harga_per_malam_dari_js <= 0) continue;
+        if (empty($tipe_kamar) || $harga_per_malam_dari_js <= 0) {
+            $reservasi_berhasil_semua = false; // Ada item tidak valid
+            continue; // Lanjut ke item berikutnya
+        }
 
-        // --- PENTING: PERHITUNGAN DURASI MENGINAP (PHP) ---
         try {
             $checkin = new DateTime($checkin_str);
             $checkout = new DateTime($checkout_str);
@@ -57,63 +56,100 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
             $jumlah_malam = 1;
         }
 
-        // PENTING: Hitung TOTAL BIAYA = Harga Per Malam * Jumlah Malam
         $total_biaya = $harga_per_malam_dari_js * $jumlah_malam;
-        // ------------------------------------------
 
         
-       
-        $sql_get_kamar = "SELECT id_kamar FROM kamar WHERE tipe_kamar = ? LIMIT 1";
+        // Asumsi kolom status Anda bernama 'status_kamar' dan nilai defaultnya 'Available'
+        $sql_get_kamar = "SELECT id_kamar FROM kamar 
+                          WHERE tipe_kamar = ? AND status_kamar = 'Available' 
+                          ORDER BY id_kamar LIMIT 1 FOR UPDATE"; 
+                          // 'FOR UPDATE' mengunci baris ini
+
         $stmt_get_kamar = $conn->prepare($sql_get_kamar);
         
         if ($stmt_get_kamar === false) {
             error_log("Prepare gagal (SELECT): " . $conn->error);
-            continue; // Lanjut ke item berikutnya di loop
+            $reservasi_berhasil_semua = false;
+            continue; 
         }
         
         $stmt_get_kamar->bind_param("s", $tipe_kamar);
         $stmt_get_kamar->execute();
-        $result = $stmt_get_kamar->get_result(); // Ini membuat $result
+        $result = $stmt_get_kamar->get_result(); 
         
-        // Periksa apakah kamar ditemukan
+        
         if ($result->num_rows > 0) {
             $row = $result->fetch_assoc();
-            $id_kamar = $row['id_kamar']; // Ini membuat $id_kamar
+            $id_kamar = $row['id_kamar']; // Ini adalah ID kamar spesifik yang tersedia
 
-            // --- INI KODE INSERT ANDA YANG ASLI ---
-            $sql_insert = "INSERT INTO reservasi_kamar 
-                (id_tamu, id_kamar, tanggal_reservasi, tanggal_check_in, tanggal_check_out, jumlah_tamu, tipe_kamar_dipesan, total_biaya, status_reservasi)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked')";
-            
-            $stmt_insert = $conn->prepare($sql_insert);
-            
-            if ($stmt_insert) {
+            // 1. Mulai coba INSERT dan UPDATE
+         // 1. Mulai coba TIGA query
+            try {
+                // Query 1: Masukkan ke reservasi
+                $sql_insert = "INSERT INTO reservasi_kamar 
+                                (id_tamu, id_kamar, tanggal_reservasi, tanggal_check_in, tanggal_check_out, jumlah_tamu, tipe_kamar_dipesan, total_biaya, status_reservasi)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'Booked')";
+                
+                $stmt_insert = $conn->prepare($sql_insert);
+                // Pastikan bind_param ini benar
                 $stmt_insert->bind_param("iisssisd", $id_tamu, $id_kamar, $tanggal_reservasi, $checkin_str, $checkout_str, $jumlah_tamu, $tipe_kamar, $total_biaya);
-                $stmt_insert->execute();
-                $reservasi_berhasil = true; // Setidaknya satu berhasil
-            } else {
-                 error_log("Prepare gagal (INSERT): " . $conn->error);
+                
+                if (!$stmt_insert->execute()) {
+                    throw new Exception("Gagal insert reservasi: " . $stmt_insert->error);
+                }
+
+                // Ambil ID reservasi yang baru saja dibuat
+                $new_id_reservasi = $stmt_insert->insert_id;
+
+                // Query 2: Update status kamar
+                $sql_update_kamar = "UPDATE kamar SET status_kamar = 'Booked' WHERE id_kamar = ?";
+                $stmt_update = $conn->prepare($sql_update_kamar);
+                $stmt_update->bind_param("i", $id_kamar);
+
+                if (!$stmt_update->execute()) {
+                    throw new Exception("Gagal update status kamar: " . $stmt_update->error);
+                }
+
+                // Query 3: Buat catatan tagihan di tabel pembayaran
+                $sql_insert_payment = "INSERT INTO pembayaran 
+                                        (jenis_reservasi, id_reservasi_ref, id_tamu, total_amount, status_pembayaran, tanggal_pembayaran)
+                                        VALUES ('kamar', ?, ?, ?, 'Pending', NOW())";
+                                        
+                $stmt_payment = $conn->prepare($sql_insert_payment);
+                // bind_param: i (id_reservasi_ref), i (id_tamu), d (total_biaya)
+                $stmt_payment->bind_param("iid", $new_id_reservasi, $id_tamu, $total_biaya);
+                
+                if (!$stmt_payment->execute()) {
+                     throw new Exception("Gagal membuat catatan pembayaran: " . $stmt_payment->error);
+                }
+
+            } catch (Exception $e) {
+                // Jika salah satu dari TIGA query gagal, batalkan semua
+                error_log("Kesalahan Transaksi: " . $e->getMessage());
+                $reservasi_berhasil_semua = false;
             }
 
         } else {
-            // Jika kamar tidak ditemukan di DB, catat di log
-            error_log("Kamar tidak ditemukan di DB: " . $tipe_kamar);
+            // Tidak ada kamar yang tersedia untuk tipe ini
+            error_log("Tidak ada kamar TERSEDIA untuk tipe: " . $tipe_kamar);
+            $reservasi_berhasil_semua = false;
         }
-        // -----------------------------------------------------------------
-        // AKHIR BLOK PERBAIKAN
-        // -----------------------------------------------------------------
-
-    } // --- AKHIR DARI 'foreach' ---
+        
+    } // Akhir dari foreach
 
     
-    if ($reservasi_berhasil) {
+    // Setelah loop selesai, tentukan apakah akan commit atau rollback
+    if ($reservasi_berhasil_semua) {
+        $conn->commit(); // Simpan semua perubahan jika semua berhasil
         echo json_encode(["status" => "success", "message" => "Reservasi berhasil disimpan."]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Gagal menyimpan reservasi, kamar tidak ditemukan."]);
+        $conn->rollback(); // Batalkan semua perubahan jika ada satu saja yang gagal
+        echo json_encode(["status" => "error", "message" => "Gagal menyimpan reservasi. Kemungkinan kamar untuk tipe yang dipilih sudah penuh."]);
     }
     
-    exit; // stop di sini biar HTML nggak ikut ke kirim
-} // --- AKHIR DARI 'if ($_SERVER['REQUEST_METHOD'] ...' ---
+    $conn->autocommit(TRUE); // Kembalikan ke mode autocommit
+    exit; 
+} 
 ?>
 
 

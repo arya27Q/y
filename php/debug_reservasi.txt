@@ -4,23 +4,23 @@ Array
         (
             [0] => Array
                 (
-                    [name] => Standard Room
-                    [price] => 250000
-                    [checkin] => 2025-11-13
-                    [checkout] => 2025-11-20
+                    [name] => Deluxe Room
+                    [price] => 550000
+                    [checkin] => 2025-11-14
+                    [checkout] => 2025-11-16
                     [jumlah_tamu] => 1
                 )
 
             [1] => Array
                 (
-                    [name] => Suite Room
-                    [price] => 750000
-                    [checkin] => 2025-11-13
-                    [checkout] => 2025-11-20
+                    [name] => Deluxe Room
+                    [price] => 550000
+                    [checkin] => 2025-11-14
+                    [checkout] => 2025-11-16
                     [jumlah_tamu] => 1
                 )
 
         )
 
-    [total] => 7000000
+    [total] => 2200000
 )

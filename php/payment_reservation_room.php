@@ -1,77 +1,169 @@
 <?php
+// Impor kelas PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+// Muat semua kebutuhan
 include 'config.php';
 session_start();
 date_default_timezone_set('Asia/Jakarta');
 
+// Muat autoloader Composer (asumsi file ini ada di folder /php)
+// Sesuaikan path ini jika file Anda TIDAK ada di dalam folder 'php'
+require '../vendor/autoload.php'; 
+
 $id_tamu = $_SESSION['id_tamu'] ?? null;
 
 if (!$id_tamu) {
-  echo "<script>alert('Anda belum login!'); window.location.href='login.php';</script>";
-  exit;
-}
-
-// === HANDLE PEMBAYARAN ===
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
-    $method = $_POST['method'];
-
-    // Pertama, cari timestamp pesanan terbaru yang 'Booked'
-    $sql_latest_time = "SELECT MAX(tanggal_reservasi) AS latest_time 
-                        FROM reservasi_kamar 
-                        WHERE id_tamu = ? AND status_reservasi = 'Booked'";
-    $stmt_time = $conn->prepare($sql_latest_time);
-    $stmt_time->bind_param("i", $id_tamu);
-    $stmt_time->execute();
-    $latest_time = $stmt_time->get_result()->fetch_assoc()['latest_time'];
-    $stmt_time->close();
-
-    if ($latest_time) {
-        // UPDATE semua kamar yang memiliki timestamp terbaru tersebut
-        $update = $conn->prepare("UPDATE reservasi_kamar SET status_reservasi = 'Paid', metode_pembayaran = ?, tanggal_pembayaran = NOW() 
-                                  WHERE id_tamu = ? AND status_reservasi = 'Booked' AND tanggal_reservasi = ?");
-        $update->bind_param("sis", $method, $id_tamu, $latest_time);
-        $update->execute();
-
-        if ($update->affected_rows > 0) {
-            echo json_encode(["success" => true]);
-        } else {
-            echo json_encode(["success" => false, "message" => "Tidak ada pesanan aktif yang belum dibayar saat ini."]);
-        }
-        $update->close();
-    } else {
-        echo json_encode(["success" => false, "message" => "Tidak ada pesanan aktif atau sudah dibayar."]);
+    // Jika ini adalah request fetch() JavaScript, kirim JSON
+    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+        header("Content-Type: application/json");
+        echo json_encode(["success" => false, "message" => "Sesi Anda telah berakhir. Silakan login kembali."]);
+    } else { // Jika ini load halaman biasa
+        echo "<script>alert('Anda belum login!'); window.location.href='login.php';</script>";
     }
     exit;
 }
 
-// === AMBIL DATA RESERVASI ===
-$sql_latest_time = "SELECT MAX(tanggal_reservasi) AS latest_time 
-                    FROM reservasi_kamar 
-                    WHERE id_tamu = ? AND status_reservasi = 'Booked'";
-$stmt_time = $conn->prepare($sql_latest_time);
-$stmt_time->bind_param("i", $id_tamu);
-$stmt_time->execute();
-$result_time = $stmt_time->get_result();
-$latest_time = $result_time->fetch_assoc()['latest_time'];
-$stmt_time->close();
+// ==========================================================
+// === BAGIAN 1: HANDLE PEMBAYARAN (SAAT JAVASCRIPT FETCH) ===
+// ==========================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
+    // header("Content-Type: application/json"); // nonaktif dulu
 
-// Jika tidak ada pesanan 'Booked' sama sekali, set result kosong
-if (!$latest_time) {
-    $result = new mysqli_result(new mysqli()); // Membuat hasil kosong
-} else {
-    // 2. Ambil SEMUA reservasi yang memiliki tanggal_reservasi yang sama dengan yang terbaru
-    $sql = "SELECT * FROM reservasi_kamar 
-            WHERE id_tamu = ? 
-            AND status_reservasi = 'Booked' 
-            AND tanggal_reservasi = ? 
-            ORDER BY tanggal_reservasi DESC";
+    
+    $metode_pembayaran_dipilih = $_POST['method'];
 
-    $stmt = $conn->prepare($sql);
-    // Bind parameter: integer (id_tamu) dan string (tanggal_reservasi)
-    $stmt->bind_param("is", $id_tamu, $latest_time); 
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $stmt->close();
+    // Variabel untuk data email nanti
+    $email_tamu = '';
+    $nama_tamu = '';
+    $detail_tagihan_email = '';
+    $total_bayar = 0;
+
+    // Mulai Transaksi
+    $conn->autocommit(FALSE);
+    
+    try {
+        // 1. Ambil data tamu (untuk email)
+        $sql_get_tamu = "SELECT email, nama_lengkap FROM tamu WHERE id_tamu = ?";
+        $stmt_tamu = $conn->prepare($sql_get_tamu);
+        $stmt_tamu->bind_param("i", $id_tamu);
+        $stmt_tamu->execute();
+        $tamu_result = $stmt_tamu->get_result();
+        
+        if($tamu_result->num_rows == 0){
+             throw new Exception("Data tamu tidak ditemukan.");
+        }
+        $tamu = $tamu_result->fetch_assoc();
+        $email_tamu = $tamu['email'];
+        $nama_tamu = $tamu['nama_lengkap'];
+
+        // 2. Ambil SEMUA tagihan 'Pending' milik tamu ini (UNTUK DI-UPDATE)
+        // Kita kunci barisnya agar tidak ada proses lain
+        $sql_get_tagihan = "SELECT p.payment_id, p.total_amount, r.tipe_kamar_dipesan 
+                            FROM pembayaran p
+                            LEFT JOIN reservasi_kamar r ON p.id_reservasi_ref = r.id_reservasi AND p.jenis_reservasi = 'kamar'
+                            WHERE p.id_tamu = ? AND p.status_pembayaran = 'Pending' FOR UPDATE";
+        $stmt_tagihan = $conn->prepare($sql_get_tagihan);
+        $stmt_tagihan->bind_param("i", $id_tamu);
+        $stmt_tagihan->execute();
+        $result_tagihan = $stmt_tagihan->get_result();
+        
+        if ($result_tagihan->num_rows == 0) {
+            throw new Exception("Tidak ada tagihan 'Pending' yang ditemukan.");
+        }
+
+        $payment_ids_to_update = [];
+        // Siapkan detail untuk email
+        while ($row = $result_tagihan->fetch_assoc()) {
+            $payment_ids_to_update[] = $row['payment_id']; // Kumpulkan ID tagihan
+            $total_bayar += (float)$row['total_amount'];
+            $tipe_kamar = $row['tipe_kamar_dipesan'] ?? 'Reservasi Meeting'; // Fallback jika bukan kamar
+            $detail_tagihan_email .= "- " . htmlspecialchars($tipe_kamar) . " (Rp " . number_format($row['total_amount'], 0, ',', '.') . ")<br>";
+        }
+
+        // 3. UPDATE SEMUA status 'Pending' jadi 'Lunas'
+        // Gunakan klausa IN() untuk update semua ID yang pending
+        $id_list = implode(',', $payment_ids_to_update); // Ubah array [1, 2, 3] jadi string "1,2,3"
+        $sql_update = "UPDATE pembayaran SET 
+                        status_pembayaran = 'Lunas',
+                        metode_pembayaran = ?,
+                        tanggal_pembayaran = NOW(),
+                        payment_ref_code = 'SIMULASI-LUNAS'
+                       WHERE payment_id IN ($id_list) AND id_tamu = ?"; // Pastikan hanya milik tamu ini
+                       
+        $stmt_update = $conn->prepare($sql_update);
+        $stmt_update->bind_param("si", $metode_pembayaran_dipilih, $id_tamu);
+        
+        if (!$stmt_update->execute()) {
+            throw new Exception("Gagal update status pembayaran di database.");
+        }
+        
+        // Jika DB berhasil, simpan permanen
+        $conn->commit();
+
+        // 4. KIRIM EMAIL (Setelah DB berhasil di-commit)
+        $mail = new PHPMailer(true);
+        try {
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'ayrandrapratama@gmail.com'; // Email Anda
+            $mail->Password   = 'sjjt ccdb uwnh tzae';       // App Password Anda
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            $mail->setFrom('ayrandrapratama@gmail.com', 'Luxury Hotel Admin');
+            $mail->addAddress($email_tamu, $nama_tamu); 
+
+            $mail->isHTML(true);
+            $mail->Subject = 'Konfirmasi Pembayaran Berhasil - Luxury Hotel';
+            $mail->Body    = "<h1>Pembayaran Berhasil!</h1>
+                            <p>Halo $nama_tamu,</p>
+                            <p>Terima kasih, kami telah mengonfirmasi pembayaran Anda sebesar <b>Rp " . number_format($total_bayar, 0, ',', '.') . "</b> 
+                            dengan metode <b>$metode_pembayaran_dipilih</b>.</p>
+                            <p><b>Detail Tagihan:</b></p>
+                            <p>$detail_tagihan_email</p>
+                            <p>Hormat kami,<br>Luxury Hotel</p>";
+
+            $mail->send();
+
+        } catch (Exception $e) {
+            // Email GAGAL, tapi DB SUDAH LUNAS.
+            error_log("Email Gagal (tapi lunas): " . $mail->ErrorInfo);
+        }
+
+        // Kirim balasan sukses ke JavaScript
+        echo json_encode(["success" => true]);
+
+    } catch (Exception $e) {
+        $conn->rollback();
+        echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    }
+    
+    $conn->autocommit(TRUE);
+    exit; // PENTING: Hentikan script setelah handle POST
 }
+
+
+// Ini adalah logika yang BENAR: cari tagihan 'Pending' di tabel 'pembayaran'
+$sql = "SELECT r.tipe_kamar_dipesan, r.tanggal_check_in, r.tanggal_check_out, p.total_amount, p.status_pembayaran
+        FROM pembayaran p
+        JOIN reservasi_kamar r ON p.id_reservasi_ref = r.id_reservasi
+        WHERE p.id_tamu = ? 
+          AND p.status_pembayaran = 'Pending'
+          AND p.jenis_reservasi = 'kamar'
+        ORDER BY r.tanggal_reservasi ASC";
+
+$stmt = $conn->prepare($sql);
+if($stmt === false) {
+    die("Prepare failed: " . $conn->error); // Cek jika query salah
+}
+$stmt->bind_param("i", $id_tamu);
+$stmt->execute();
+$result = $stmt->get_result();
+$stmt->close();
 
 $total_semua = 0;
 ?>
@@ -82,11 +174,11 @@ $total_semua = 0;
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Luxury Hotel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="../css/payment_reservation_room.css">
+  <link rel="stylesheet" href="../css/payment_reservation_room.css"> 
 </head>
 <body id="top">
   <header>
-  <img src="../img/logo.png" alt="Luxury Hotel">
+  <img src="../img/logo.png" alt="Luxury Hotel"> 
   <nav>
       <a href="home.php">Home</a>
       <a href="reservasi_hotel.php">Room</a>
@@ -121,23 +213,14 @@ $total_semua = 0;
         <div class="consent">
           <label>
             <input type="checkbox" id="consentCheck">
-            I give my <strong>Consent to personal data processing</strong> and confirm that I have read the 
-            <a href="#">Cancellation policy</a>, the <a href="#">Online booking</a> rules and the 
-            <a href="#">Privacy policy</a>.
+            I give my <strong>Consent to personal data processing...</strong>
           </label>
         </div>
 
         <div class="method-card">
           <div class="left-content">
-            <p><strong>E-Payment</strong><br>Visa, Master Card, E-wallet</p>
-            <div class="icons">
-              <i class="fa-solid fa-qrcode"></i>
-              <i class="fa-brands fa-cc-visa"></i>
-              <i class="fa-brands fa-cc-mastercard"></i>
-              <i class="fa-solid fa-wallet"></i>
-            </div>
-          </div>
-
+             <p><strong>E-Payment</strong><br>Visa, Master Card, E-wallet</p>
+             </div>
           <div class="right-content">
             <button class="pay-btn">Pay Now</button>
           </div>
@@ -154,22 +237,20 @@ $total_semua = 0;
     </div>
 
     <div class="payment-box">
-      <h3>My Booking</h3>
+      <h3>My Booking (Pending Payment)</h3>
       <ul id="booking-list">
         <?php if ($result->num_rows > 0): ?>
           <?php while ($row = $result->fetch_assoc()): ?>
             <li>
               <?= htmlspecialchars($row['tipe_kamar_dipesan']) ?>
               (<?= htmlspecialchars($row['tanggal_check_in']) ?> → <?= htmlspecialchars($row['tanggal_check_out']) ?>)
-              - Rp.<?= number_format($row['total_biaya'], 0, ',', '.') ?>
-              <?php if ($row['status_reservasi'] === 'Paid'): ?>
-                <span style="color:green;">(Paid)</span>
-              <?php endif; ?>
+              - Rp.<?= number_format($row['total_amount'], 0, ',', '.') ?>
+              <span style="color:orange;">(<?= htmlspecialchars($row['status_pembayaran']) ?>)</span>
             </li>
-            <?php $total_semua += (float)$row['total_biaya']; ?>
+            <?php $total_semua += (float)$row['total_amount']; ?>
           <?php endwhile; ?>
         <?php else: ?>
-          <li>Tidak ada data pemesanan ditemukan.</li>
+          <li>Tidak ada tagihan yang belum dibayar.</li> 
         <?php endif; ?>
       </ul>
 
@@ -191,24 +272,7 @@ $total_semua = 0;
 </div>
 
 <footer>
-  <div class="footer-container">
-    <div class="footer-left">
-      <p>&copy; Luxury Hotel 2025</p>
-      <p>Surabaya, Indonesia</p>
-      <p>Your Comfort, Our Priority</p>
-    </div>
-    <div class="footer-center">
-      <a href="#top" class="btn back-top">
-        <i class="fa-solid fa-arrow-up"></i> Back to Top
-      </a>
-    </div>
-    <div class="footer-right">
-      <p><i class="fa-brands fa-instagram"></i> @luxuryhotel</p>
-      <p><i class="fa-solid fa-phone"></i> 6289566895155</p>
-      <p><i class="fa-solid fa-envelope"></i> luxuryhotelsby@gmail.com</p>
-    </div>
-  </div>
-</footer>
+  </footer>
 
 <script>
 const payBtn = document.querySelector(".pay-btn");
@@ -256,7 +320,7 @@ window.showPayment = function(icon){
       title.textContent="QRIS Payment";
       formContent.innerHTML = `
         <p style="text-align:center;">Scan QR ini untuk bayar:</p>
-        <img src="../img/qris.webp" alt="QRIS" width="200" style="display:block;margin:auto;border-radius:10px;">`;
+        <img src="../img/qris.webp" alt="QRIS" width="200" style="display:block;margin:auto;border-radius:10px;">`; // Sesuaikan path img
       confirmBtn.disabled = false;
       break;
   }
@@ -275,19 +339,29 @@ window.showPayment = function(icon){
   }
 
   confirmBtn.onclick = function(){
-    fetch("payment_reservation_room.php", {
+    // Kirim fetch ke file ini sendiri
+    fetch("<?php echo basename($_SERVER['PHP_SELF']); ?>", { 
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "method=" + encodeURIComponent(icon.dataset.method)
     })
-    .then(res => res.json())
+    .then(res => {
+        if (!res.ok) { // Cek jika server error (bukan JSON)
+             throw new Error("Server merespon error: " + res.status);
+        }
+        return res.json();
+    })
     .then(data => {
       if (data.success) {
-        alert(`Pembayaran via ${icon.dataset.method} berhasil!`);
-        location.reload();
+        alert(`Pembayaran via ${icon.dataset.method} berhasil! Email konfirmasi dikirim.`);
+        location.reload(); // Reload halaman untuk lihat status baru
       } else {
-        alert("Gagal: " + data.message);
+        alert("Gagal: " + (data.message || 'Terjadi kesalahan.'));
       }
+    })
+    .catch(err => {
+        console.error('Fetch Error:', err);
+        alert("Error: " + err.message);
     });
   };
 
@@ -296,6 +370,13 @@ window.showPayment = function(icon){
     overlay.style.display="none";
   };
 };
+
+// Script untuk user-menu dropdown
+document.getElementById('userIcon').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('dropdownMenu').classList.toggle('show');
+});
+// ... (sisa JS Anda) ...
 </script>
 </body>
 </html>
