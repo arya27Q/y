@@ -1,3 +1,13 @@
+<?php
+
+$kode_dari_url = ""; 
+
+if ( isset($_GET['promo_code']) ) {
+  
+    $kode_dari_url = htmlspecialchars($_GET['promo_code']);
+}
+?>
+<!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,21 +56,21 @@
     <img src="../img/sale.avif" alt="Daily Deals">
     <h2>✨ Daily Deals</h2>
     <p>Save up to <b>30%</b> on weekday bookings.</p>
-    <a href="reservation.html" class="btn">Book Now</a>
+   <a href="reservasi_hotel.php?promo_code=DAILYDEALS30" class="btn">Book Now</a>
   </div>
 
   <div class="offer-card easy">
     <img src="../img/breakfastFamily.png" alt="Breakfast Package">
     <h2>🥞 Breakfast free</h2>
     <p>Free breakfast for <b>2 guests</b> every morning.</p>
-    <a href="reservation.html" class="btn">Book Now</a>
+   <a href="reservasi_hotel.php?promo_code=FREEBREAKFAST" class="btn">Book Now</a>
   </div>
 
   <div class="offer-card elite">
     <img src="../img/elit.avif" alt="Member Specials">
     <h2>👑 vip member</h2>
     <p>Exclusive <b>member-only perks</b> & discounts.</p>
-    <a href="reservation.html" class="btn">Book Now</a>
+   <a href="reservasi_hotel.php?promo_code=VIPMEMBER" class="btn">Book Now</a>
   </div>
 </div>
 

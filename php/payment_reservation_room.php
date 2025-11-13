@@ -1,97 +1,90 @@
 <?php
-// Impor kelas PHPMailer
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-// Muat semua kebutuhan
-include 'config.php';
+include 'config.php'; 
 session_start();
 date_default_timezone_set('Asia/Jakarta');
 
-// Muat autoloader Composer (asumsi file ini ada di folder /php)
-// Sesuaikan path ini jika file Anda TIDAK ada di dalam folder 'php'
 require '../vendor/autoload.php'; 
 
 $id_tamu = $_SESSION['id_tamu'] ?? null;
 
+
 if (!$id_tamu) {
-    // Jika ini adalah request fetch() JavaScript, kirim JSON
-    if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
         header("Content-Type: application/json");
         echo json_encode(["success" => false, "message" => "Sesi Anda telah berakhir. Silakan login kembali."]);
-    } else { // Jika ini load halaman biasa
+    } else {
         echo "<script>alert('Anda belum login!'); window.location.href='login.php';</script>";
     }
     exit;
 }
 
-// ==========================================================
-// === BAGIAN 1: HANDLE PEMBAYARAN (SAAT JAVASCRIPT FETCH) ===
-// ==========================================================
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
-    // header("Content-Type: application/json"); // nonaktif dulu
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
+    header("Content-Type: application/json"); 
     
     $metode_pembayaran_dipilih = $_POST['method'];
 
-    // Variabel untuk data email nanti
     $email_tamu = '';
     $nama_tamu = '';
     $detail_tagihan_email = '';
     $total_bayar = 0;
 
-    // Mulai Transaksi
     $conn->autocommit(FALSE);
     
     try {
-        // 1. Ambil data tamu (untuk email)
+        
         $sql_get_tamu = "SELECT email, nama_lengkap FROM tamu WHERE id_tamu = ?";
         $stmt_tamu = $conn->prepare($sql_get_tamu);
         $stmt_tamu->bind_param("i", $id_tamu);
         $stmt_tamu->execute();
         $tamu_result = $stmt_tamu->get_result();
         
-        if($tamu_result->num_rows == 0){
-             throw new Exception("Data tamu tidak ditemukan.");
+        if ($tamu_result->num_rows == 0) {
+             throw new Exception("Data tamu (ID: $id_tamu) tidak ditemukan di database.");
         }
         $tamu = $tamu_result->fetch_assoc();
+        
         $email_tamu = $tamu['email'];
         $nama_tamu = $tamu['nama_lengkap'];
 
-        // 2. Ambil SEMUA tagihan 'Pending' milik tamu ini (UNTUK DI-UPDATE)
-        // Kita kunci barisnya agar tidak ada proses lain
         $sql_get_tagihan = "SELECT p.payment_id, p.total_amount, r.tipe_kamar_dipesan 
                             FROM pembayaran p
-                            LEFT JOIN reservasi_kamar r ON p.id_reservasi_ref = r.id_reservasi AND p.jenis_reservasi = 'kamar'
-                            WHERE p.id_tamu = ? AND p.status_pembayaran = 'Pending' FOR UPDATE";
+                            LEFT JOIN reservasi_kamar r ON p.id_reservasi_ref = r.id_reservasi
+                            WHERE p.id_tamu = ? 
+                              AND p.status_pembayaran = 'Pending' 
+                              AND p.jenis_reservasi = 'kamar' FOR UPDATE";
+        
         $stmt_tagihan = $conn->prepare($sql_get_tagihan);
         $stmt_tagihan->bind_param("i", $id_tamu);
         $stmt_tagihan->execute();
         $result_tagihan = $stmt_tagihan->get_result();
         
         if ($result_tagihan->num_rows == 0) {
-            throw new Exception("Tidak ada tagihan 'Pending' yang ditemukan.");
+            throw new Exception("Tidak ada tagihan kamar 'Pending' yang ditemukan.");
         }
 
         $payment_ids_to_update = [];
-        // Siapkan detail untuk email
         while ($row = $result_tagihan->fetch_assoc()) {
-            $payment_ids_to_update[] = $row['payment_id']; // Kumpulkan ID tagihan
+            $payment_ids_to_update[] = $row['payment_id']; 
             $total_bayar += (float)$row['total_amount'];
-            $tipe_kamar = $row['tipe_kamar_dipesan'] ?? 'Reservasi Meeting'; // Fallback jika bukan kamar
+            $tipe_kamar = $row['tipe_kamar_dipesan'] ?? 'Reservasi Lainnya'; 
             $detail_tagihan_email .= "- " . htmlspecialchars($tipe_kamar) . " (Rp " . number_format($row['total_amount'], 0, ',', '.') . ")<br>";
         }
 
-        // 3. UPDATE SEMUA status 'Pending' jadi 'Lunas'
-        // Gunakan klausa IN() untuk update semua ID yang pending
-        $id_list = implode(',', $payment_ids_to_update); // Ubah array [1, 2, 3] jadi string "1,2,3"
+        $id_list = implode(',', $payment_ids_to_update); 
         $sql_update = "UPDATE pembayaran SET 
                         status_pembayaran = 'Lunas',
                         metode_pembayaran = ?,
                         tanggal_pembayaran = NOW(),
-                        payment_ref_code = 'SIMULASI-LUNAS'
-                       WHERE payment_id IN ($id_list) AND id_tamu = ?"; // Pastikan hanya milik tamu ini
+                        payment_ref_code = 'SIMULASI-LUNAS-ROOM'
+                       WHERE payment_id IN ($id_list) 
+                         AND id_tamu = ? 
+                         AND jenis_reservasi = 'kamar'"; 
                        
         $stmt_update = $conn->prepare($sql_update);
         $stmt_update->bind_param("si", $metode_pembayaran_dipilih, $id_tamu);
@@ -100,17 +93,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
             throw new Exception("Gagal update status pembayaran di database.");
         }
         
-        // Jika DB berhasil, simpan permanen
         $conn->commit();
 
-        // 4. KIRIM EMAIL (Setelah DB berhasil di-commit)
         $mail = new PHPMailer(true);
         try {
+          
             $mail->isSMTP();
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'ayrandrapratama@gmail.com'; // Email Anda
-            $mail->Password   = 'sjjt ccdb uwnh tzae';       // App Password Anda
+            $mail->Username   = 'ayrandrapratama@gmail.com'; 
+            $mail->Password   = 'sjjt ccdb uwnh tzae';       
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 
@@ -118,10 +110,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
             $mail->addAddress($email_tamu, $nama_tamu); 
 
             $mail->isHTML(true);
-            $mail->Subject = 'Konfirmasi Pembayaran Berhasil - Luxury Hotel';
-            $mail->Body    = "<h1>Pembayaran Berhasil!</h1>
+            $mail->Subject = 'Konfirmasi Pembayaran Kamar Berhasil - Luxury Hotel';
+            $mail->Body    = "<h1>Pembayaran Kamar Berhasil!</h1>
                             <p>Halo $nama_tamu,</p>
-                            <p>Terima kasih, kami telah mengonfirmasi pembayaran Anda sebesar <b>Rp " . number_format($total_bayar, 0, ',', '.') . "</b> 
+                            <p>Terima kasih, kami telah mengonfirmasi pembayaran reservasi kamar Anda sebesar <b>Rp " . number_format($total_bayar, 0, ',', '.') . "</b> 
                             dengan metode <b>$metode_pembayaran_dipilih</b>.</p>
                             <p><b>Detail Tagihan:</b></p>
                             <p>$detail_tagihan_email</p>
@@ -130,11 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
             $mail->send();
 
         } catch (Exception $e) {
-            // Email GAGAL, tapi DB SUDAH LUNAS.
             error_log("Email Gagal (tapi lunas): " . $mail->ErrorInfo);
         }
 
-        // Kirim balasan sukses ke JavaScript
         echo json_encode(["success" => true]);
 
     } catch (Exception $e) {
@@ -143,22 +133,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['method'])) {
     }
     
     $conn->autocommit(TRUE);
-    exit; // PENTING: Hentikan script setelah handle POST
+    exit; 
 }
 
 
-// Ini adalah logika yang BENAR: cari tagihan 'Pending' di tabel 'pembayaran'
 $sql = "SELECT r.tipe_kamar_dipesan, r.tanggal_check_in, r.tanggal_check_out, p.total_amount, p.status_pembayaran
         FROM pembayaran p
         JOIN reservasi_kamar r ON p.id_reservasi_ref = r.id_reservasi
         WHERE p.id_tamu = ? 
           AND p.status_pembayaran = 'Pending'
-          AND p.jenis_reservasi = 'kamar'
+          AND p.jenis_reservasi = 'kamar' 
         ORDER BY r.tanggal_reservasi ASC";
 
 $stmt = $conn->prepare($sql);
 if($stmt === false) {
-    die("Prepare failed: " . $conn->error); // Cek jika query salah
+    die("Error saat prepare query (Bagian 2): " . $conn->error); 
 }
 $stmt->bind_param("i", $id_tamu);
 $stmt->execute();
@@ -320,7 +309,7 @@ window.showPayment = function(icon){
       title.textContent="QRIS Payment";
       formContent.innerHTML = `
         <p style="text-align:center;">Scan QR ini untuk bayar:</p>
-        <img src="../img/qris.webp" alt="QRIS" width="200" style="display:block;margin:auto;border-radius:10px;">`; // Sesuaikan path img
+        <img src="../img/qris.webp" alt="QRIS" width="200" style="display:block;margin:auto;border-radius:10px;">`; 
       confirmBtn.disabled = false;
       break;
   }
@@ -338,31 +327,41 @@ window.showPayment = function(icon){
     }
   }
 
-  confirmBtn.onclick = function(){
-    // Kirim fetch ke file ini sendiri
-    fetch("<?php echo basename($_SERVER['PHP_SELF']); ?>", { 
+
+confirmBtn.onclick = function(){ 
+   
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Processing...";
+    
+      fetch("<?php echo basename($_SERVER['PHP_SELF']); ?>", { 
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: "method=" + encodeURIComponent(icon.dataset.method)
     })
-    .then(res => {
-        if (!res.ok) { // Cek jika server error (bukan JSON)
-             throw new Error("Server merespon error: " + res.status);
-        }
-        return res.json();
+   .then(res => {
+     if (!res.ok) { 
+        throw new Error("Server merespon error: " + res.status);
+    }
+    return res.json();
     })
     .then(data => {
-      if (data.success) {
-        alert(`Pembayaran via ${icon.dataset.method} berhasil! Email konfirmasi dikirim.`);
-        location.reload(); // Reload halaman untuk lihat status baru
-      } else {
-        alert("Gagal: " + (data.message || 'Terjadi kesalahan.'));
-      }
-    })
-    .catch(err => {
-        console.error('Fetch Error:', err);
-        alert("Error: " + err.message);
-    });
+    if (data.success) {
+    alert(`Pembayaran via ${icon.dataset.method} berhasil! Email konfirmasi dikirim.`);
+    location.reload(); 
+    } else {
+      alert("Gagal: " + (data.message || 'Terjadi kesalahan.'));
+       
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm";
+   }
+   })
+   .catch(err => {
+    console.error('Fetch Error:', err);
+    alert("Error: " + err.message);
+       
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirm";
+  });
   };
 
   document.getElementById("closeForm").onclick = function(){
@@ -371,12 +370,12 @@ window.showPayment = function(icon){
   };
 };
 
-// Script untuk user-menu dropdown
+
 document.getElementById('userIcon').addEventListener('click', function(event) {
     event.preventDefault();
     document.getElementById('dropdownMenu').classList.toggle('show');
 });
-// ... (sisa JS Anda) ...
+
 </script>
 </body>
 </html>

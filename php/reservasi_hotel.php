@@ -4,6 +4,17 @@ session_start();
 header("Content-Type: text/html; charset=UTF-8");
 date_default_timezone_set('Asia/Jakarta');
 
+// ========================================================
+// ========= BLOK YANG HILANG (TAMBAHKAN INI) =============
+// ========================================================
+$kode_dari_url = ""; // Buat variabelnya sebagai string kosong
+
+// Cek apakah ada 'promo_code' di URL (saat datang dari special_offer.php)
+if ( isset($_GET['promo_code']) ) {
+    // Jika ada, isi variabelnya
+    $kode_dari_url = htmlspecialchars($_GET['promo_code']);
+}
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
     header("Content-Type: application/json");
@@ -55,8 +66,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
         } catch (Exception $e) {
             $jumlah_malam = 1;
         }
+// ... (kode Anda menghitung $jumlah_malam) ...
+        
+        $total_biaya_asli = $harga_per_malam_dari_js * $jumlah_malam;
+        $total_biaya = $total_biaya_asli; // Set default ke harga asli
 
-        $total_biaya = $harga_per_malam_dari_js * $jumlah_malam;
+        // ========================================================
+        // ========= BLOK PROMO YANG HILANG (TAMBAHKAN INI) ========
+        // ========================================================
+        
+        // 1. Ambil kode promo DARI LUAR LOOP (kita definisikan sekali saja)
+        // (Pindahkan ini ke ATAS 'foreach' agar lebih efisien)
+        static $diskon_data = null; // Gunakan 'static' agar query promo hanya jalan sekali
+        if ($diskon_data === null) { // Hanya cek DB pada item pertama
+            $kode_promo_input = $data['promo_code'] ?? null;
+            $diskon_data = false; // Set default ke 'false' (tidak ada promo)
+
+            if (!empty($kode_promo_input)) {
+                $sql_promo = "SELECT * FROM promo 
+                              WHERE kode_promo = ? AND status = 'aktif' 
+                              AND tanggal_mulai <= CURDATE() AND tanggal_selesai >= CURDATE()";
+                $stmt_promo = $conn->prepare($sql_promo);
+                $stmt_promo->bind_param("s", $kode_promo_input);
+                $stmt_promo->execute();
+                $result_promo = $stmt_promo->get_result();
+                if ($result_promo->num_rows > 0) {
+                    $diskon_data = $result_promo->fetch_assoc(); // Simpan data promo jika valid
+                }
+                $stmt_promo->close();
+            }
+        }
+
+        // 2. Aplikasikan diskon jika valid
+        // Cek apakah ada data diskon DAN diskon itu berlaku untuk 'kamar' atau 'semua'
+        if ($diskon_data && ($diskon_data['berlaku_untuk'] == 'kamar' || $diskon_data['berlaku_untuk'] == 'semua')) {
+            
+            if ($diskon_data['tipe_diskon'] == 'persen') {
+                $potongan = $total_biaya * ($diskon_data['nilai_diskon'] / 100);
+                $total_biaya = $total_biaya - $potongan;
+
+            } elseif ($diskon_data['tipe_diskon'] == 'nominal') {
+                // Asumsi diskon nominal berlaku PER ITEM KAMAR di keranjang
+                $total_biaya = $total_biaya - $diskon_data['nilai_diskon'];
+                if ($total_biaya < 0) {
+                    $total_biaya = 0; // Jangan sampai harga minus
+                }
+            }
+        }
+        // ========================================================
+        // ================ AKHIR BLOK PROMO ======================
+        // ========================================================
 
         
         // Asumsi kolom status Anda bernama 'status_kamar' dan nilai defaultnya 'Available'
@@ -138,20 +197,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
     } // Akhir dari foreach
 
     
-    // Setelah loop selesai, tentukan apakah akan commit atau rollback
+    
     if ($reservasi_berhasil_semua) {
-        $conn->commit(); // Simpan semua perubahan jika semua berhasil
+        $conn->commit(); 
         echo json_encode(["status" => "success", "message" => "Reservasi berhasil disimpan."]);
     } else {
-        $conn->rollback(); // Batalkan semua perubahan jika ada satu saja yang gagal
+        $conn->rollback(); 
         echo json_encode(["status" => "error", "message" => "Gagal menyimpan reservasi. Kemungkinan kamar untuk tipe yang dipilih sudah penuh."]);
     }
     
-    $conn->autocommit(TRUE); // Kembalikan ke mode autocommit
+    $conn->autocommit(TRUE); 
     exit; 
 } 
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -259,13 +317,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
             </div>
           </div>
 
-          <div class="my-booking">
-            <h2>My Booking</h2>
-            <ul id="my-booking-list"></ul>
-            <p>Total : <span id="total-price">0</span></p>
-            <button id="bookNow" class="btn-book">Book Now</button>
-          </div>
-        </div>
+       <div class="my-booking">
+    <h2>My Booking</h2>
+    <ul id="my-booking-list">
+        </ul>
+    <p>Total : <span id="total-price">0</span></p>
+
+    <hr>
+    <div>
+        <label for="kode_promo_input" style="font-weight: bold;">Kode Promo:</label>
+        <br>
+        <input type="text" id="kode_promo_input" name="kode_promo_input" 
+               placeholder="Masukkan kode promo" 
+               value="<?php echo $kode_dari_url; ?>" 
+               style="width: 95%; margin-top: 5px; padding: 5px;"> 
+        <button type="button" id="tombol_apply_promo" class="btn-book" style="margin-top: 10px;">
+            Terapkan
+        </button>
+    </div>
+    
+    <div id="info_promo" style="margin-top: 10px; font-weight: bold;"></div>
+    <hr>
+    <p style="font-weight: bold; font-size: 1.2em;">
+        Grand Total : <span id="grand-total-price">0</span>
+    </p>
+    <button id="bookNow" class="btn-book">Book Now</button>
+</div>
       </section>
     </section>
 

@@ -19,30 +19,38 @@ function calculateNights(checkinDateStr, checkoutDateStr) {
 }
 
 function renderBookingList() {
-  const ul = document.getElementById("my-booking-list");
-  ul.innerHTML = ""; // Kosongkan daftar
+    const ul = document.getElementById("my-booking-list");
+    ul.innerHTML = ""; // Kosongkan daftar
 
-  let grandTotal = 0;
+    let grandTotal = 0;
 
-  bookingList.forEach((item, index) => {
-    const totalNights = calculateNights(item.checkin, item.checkout); // Hitung total harga item: Harga Per Malam * Jumlah Malam
-    const itemTotalPrice = item.pricePerNight * totalNights;
-    grandTotal += itemTotalPrice;
+    bookingList.forEach((item, index) => {
+        const totalNights = calculateNights(item.checkin, item.checkout); 
+        const itemTotalPrice = item.pricePerNight * totalNights;
+        grandTotal += itemTotalPrice;
 
-    const li = document.createElement("li"); // Tampilkan detail durasi dan total harga
+        const li = document.createElement("li"); 
+        li.innerHTML = `
+        ${item.name} 
+        (${item.checkin} &rarr; ${item.checkout}) 
+        <span style="font-weight: bold;">(${totalNights} malam)</span>
+        - Rp${itemTotalPrice.toLocaleString("id-ID")}
+        `;
+        ul.appendChild(li);
+    });
 
-    li.innerHTML = `
-      ${item.name} 
-      (${item.checkin} &rarr; ${item.checkout}) 
-      <span style="font-weight: bold;">(${totalNights} malam)</span>
-      - Rp${itemTotalPrice.toLocaleString("id-ID")}
-    `;
-    ul.appendChild(li);
-  });
+    // --- PERUBAHAN PENTING DI SINI ---
+    const formattedTotal = `Rp${grandTotal.toLocaleString("id-ID")}`;
 
-  document.getElementById(
-    "total-price"
-  ).textContent = `Rp${grandTotal.toLocaleString("id-ID")}`;
+    // 1. Update Total Asli (seperti biasa)
+    document.getElementById("total-price").textContent = formattedTotal;
+
+    // 2. UPDATE JUGA Grand Total (agar sama dengan total asli)
+    document.getElementById("grand-total-price").textContent = formattedTotal; 
+    
+    // 3. BERSIHKAN Info Promo (karena keranjang berubah)
+    document.getElementById("info_promo").textContent = ""; 
+    // --- AKHIR PERUBAHAN ---
 }
 
 function addBooking(name, pricePerNight) {
@@ -105,14 +113,19 @@ document
       };
     });
 
+    // ...
+    // AMBIL NILAI DARI KOTAK KODE PROMO
+    const promoCodeValue = document.getElementById("kode_promo_input").value;
+
     const data = {
       list: finalBookingList,
       total: total,
-    };
-    console.log("Data dikirim ke PHP:", data);
+      promo_code: promoCodeValue  // <-- TAMBAHKAN BARIS INI
+      };
+
+   console.log("Data dikirim ke PHP:", data); // Cek konsol, pastikan promo_code ada
 
     try {
-      // --- BARIS INI YANG DIUBAH KE ABSOLUT PATH ---
       const response = await fetch("/web-hotel/php/reservasi_hotel.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -133,3 +146,60 @@ document
       alert("Terjadi kesalahan koneksi ke server.");
     }
   });
+
+  // Tambahkan kode ini di file JavaScript Anda (di luar fungsi lain)
+
+document.getElementById('tombol_apply_promo').addEventListener('click', async function() {
+    
+    const promoCodeValue = document.getElementById('kode_promo_input').value;
+    const infoPromoDiv = document.getElementById('info_promo');
+    const grandTotalSpan = document.getElementById('grand-total-price'); // Target span Grand Total
+
+    // 1. Hitung ulang total asli dari 'bookingList'
+    let originalTotal = 0;
+    bookingList.forEach(item => {
+        const nights = calculateNights(item.checkin, item.checkout);
+        originalTotal += item.pricePerNight * nights;
+    });
+
+    // Jika keranjang kosong, beri peringatan
+    if (originalTotal === 0) {
+        infoPromoDiv.textContent = 'Silakan pilih kamar dulu.';
+        infoPromoDiv.style.color = 'red';
+        return;
+    }
+
+    // 2. Kirim data ke file PHP baru
+    try {
+        const response = await fetch('/web-hotel/php/cek_promo.php', { // Pastikan path ini benar
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                promo_code: promoCodeValue,
+                original_total: originalTotal
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // 3. Update tampilan jika SUKSES
+            infoPromoDiv.textContent = result.message;
+            infoPromoDiv.style.color = 'green';
+            // Update Grand Total dengan harga baru
+            grandTotalSpan.textContent = `Rp${result.newTotal.toLocaleString('id-ID')}`;
+        
+        } else {
+            // 4. Update tampilan jika GAGAL
+            infoPromoDiv.textContent = result.message;
+            infoPromoDiv.style.color = 'red';
+            // Kembalikan Grand Total ke harga asli
+            grandTotalSpan.textContent = `Rp${originalTotal.toLocaleString('id-ID')}`;
+        }
+
+    } catch (error) {
+        console.error('Error saat cek promo:', error);
+        infoPromoDiv.textContent = 'Gagal terhubung ke server.';
+        infoPromoDiv.style.color = 'red';
+    }
+});

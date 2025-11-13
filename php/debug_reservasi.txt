@@ -4,23 +4,15 @@ Array
         (
             [0] => Array
                 (
-                    [name] => Deluxe Room
-                    [price] => 550000
+                    [name] => Suite Room
+                    [price] => 750000
                     [checkin] => 2025-11-14
-                    [checkout] => 2025-11-16
-                    [jumlah_tamu] => 1
-                )
-
-            [1] => Array
-                (
-                    [name] => Deluxe Room
-                    [price] => 550000
-                    [checkin] => 2025-11-14
-                    [checkout] => 2025-11-16
+                    [checkout] => 2025-11-17
                     [jumlah_tamu] => 1
                 )
 
         )
 
-    [total] => 2200000
+    [total] => 2250000
+    [promo_code] => FREEBREAKFAST
 )

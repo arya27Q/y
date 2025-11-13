@@ -133,8 +133,8 @@
       <button id="contactBtn" class="btn"><i class="fa-solid fa-phone"></i> Contact Us</button>'
     </div>
       </section>
-    <div id="contactOverlay"></div>
-  <div id="contactForm">
+   <div id="contactOverlay"></div>
+<div id="contactForm">
   <h3>Contact Us</h3>
   <form id="contactFormInner">
     <label for="name">Nama Lengkap:</label>
@@ -145,6 +145,8 @@
 
     <label for="message">Pesan:</label>
     <textarea id="message" rows="4" placeholder="input your comment or text to us..." required></textarea>
+
+    <div id="contactStatus" style="margin-top: 10px; font-weight: bold;"></div>
 
     <div class="contact-buttons">
       <button type="submit" class="submit-btn">Kirim</button>
