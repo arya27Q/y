@@ -62,6 +62,7 @@ if (!$result) {
                     </li>
                     <li class="active"> <a href="tabel_pembayaran.php"><i class="fas fa-credit-card"></i>Pembayaran</a>
                     </li>
+                     <li><a href="tabel_pesan.php"><i class="fas fa-envelope"></i>Pesan Masuk</a></li>
                     <li class="has-sub">
                         <a class="js-arrow" href="#">
                             <i class="fas fa-copy"></i>Pages</a>

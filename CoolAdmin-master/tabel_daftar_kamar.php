@@ -71,6 +71,7 @@ if (!$result) {
                     <li>
                         <a href="tabel_pembayaran.php"><i class="fas fa-credit-card"></i>Pembayaran</a>
                     </li>
+                     <li><a href="tabel_pesan.php"><i class="fas fa-envelope"></i>Pesan Masuk</a></li>
                     <li class="has-sub">
                         <a class="js-arrow" href="#"><i class="fas fa-copy"></i>Pages</a>
                         <ul class="list-unstyled navbar__sub-list js-sub-list">
@@ -109,6 +110,7 @@ if (!$result) {
                     <li>
                         <a href="tabel_pembayaran.php"><i class="fas fa-credit-card"></i>Pembayaran</a>
                     </li>
+                     <li><a href="tabel_pesan.php"><i class="fas fa-envelope"></i>Pesan Masuk</a></li>
                     <li class="has-sub">
                         <a class="js-arrow" href="#">
                             <i class="fas fa-copy"></i>Pages</a>
