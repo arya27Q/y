@@ -65,7 +65,7 @@ $result = mysqli_query($conn, $sql);
 <aside class="menu-sidebar d-none d-lg-block">
     <div class="logo">
         <a href="index.php">
-            <img src="../CoolAdmin-master/images/logo.png" alt="Luxury Hotel"  style="width: 80px; height: 80px; margin-left: 4.5rem;"/>
+           <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
         </a>
     </div>
     <div class="menu-sidebar__content js-scrollbar1">
@@ -124,10 +124,10 @@ $result = mysqli_query($conn, $sql);
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu">
                                         <div class="image">
-                                            <img src="images/icon/avatar-01.jpg" alt="John Doe" />
+                                            <img src="" alt="" />
                                         </div>
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">john doe</a>
+                                            <a class="js-acc-btn" href="#"></a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">

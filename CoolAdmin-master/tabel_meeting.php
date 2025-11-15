@@ -2,12 +2,15 @@
 // Impor file koneksi database
 include_once '../php/config.php';
 
-mysqli_set_charset($conn, "utf8"); 
+// Set charset ke UTF-8
+mysqli_set_charset($conn, "utf8");
 
+// Tampilkan notifikasi jika ada parameter 'update=success'
 if (isset($_GET['update']) && $_GET['update'] == 'success') {
     echo '<div class="alert alert-success" role="alert" style="margin-bottom:0;">Status reservasi meeting berhasil diperbarui!</div>';
 }
 
+// Query untuk mengambil data reservasi meeting digabung dengan data tamu
 $sql = "SELECT
             rm.id_reservasi_meeting,
             rm.tanggal_pemesanan, 
@@ -28,6 +31,7 @@ $sql = "SELECT
 
 $result = mysqli_query($conn, $sql);
 
+// Cek jika query gagal
 if (!$result) {
     echo "<div class='alert alert-danger'>Error Query: " . mysqli_error($conn) . "</div>";
 }
@@ -38,7 +42,7 @@ if (!$result) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Tabel Meeting</title> 
+    <title>Tabel Meeting</title>
     <link href="css/font-face.css" rel="stylesheet" media="all">
     <link href="vendor/fontawesome-7.0.1/css/all.min.css" rel="stylesheet" media="all">
     <link href="vendor/mdi-font/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
@@ -49,7 +53,7 @@ if (!$result) {
 
 <body>
     <div class="page-wrapper">
-        
+
         <header class="header-mobile d-block d-lg-none">
             <div class="header-mobile__bar">
                 <div class="container-fluid">
@@ -64,18 +68,19 @@ if (!$result) {
             </div>
             <nav class="navbar-mobile">
                 <div class="container-fluid">
-                    </div>
+                </div>
             </nav>
         </header>
+
         <aside class="menu-sidebar d-none d-lg-block">
             <div class="logo">
                 <a href="index.php">
-                    <img src="../CoolAdmin-master/images/logo.png" alt="Luxury Hotel" style="width: 80px; height: 80px; margin-left: 4rem;" /> </a>
+                    <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
+                </a>
             </div>
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
                     <ul class="list-unstyled navbar__list">
-
                         <li>
                             <a href="index.php">
                                 <i class="fas fa-tachometer-alt"></i>Dashboard</a>
@@ -85,13 +90,13 @@ if (!$result) {
                                 <i class="fas fa-bed"></i>Daftar Kamar</a>
                         </li>
                         <li>
-                            <a href="table.php"> 
+                            <a href="table.php">
                                 <i class="fas fa-bed"></i>Reservasi Kamar</a>
                         </li>
                         <li class="active"> <a href="tabel_meeting.php">
                                 <i class="fas fa-desktop"></i>Reservasi Meeting</a>
                         </li>
-                         <li>
+                        <li>
                             <a href="tabel_pembayaran.php"><i class="fas fa-credit-card"></i>Pembayaran</a>
                         </li>
                         <li class="has-sub">
@@ -103,13 +108,12 @@ if (!$result) {
                                 <li><a href="forget-pass.html">Forget Password</a></li>
                             </ul>
                         </li>
-
                     </ul>
                 </nav>
             </div>
         </aside>
+
         <div class="page-container">
-            
             <header class="header-desktop">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
@@ -122,7 +126,7 @@ if (!$result) {
                             </form>
                             <div class="header-button">
                                 <div class="noti-wrap">
-                                    </div>
+                                </div>
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu">
                                         <div class="image">
@@ -134,7 +138,8 @@ if (!$result) {
                                             <div class="info clearfix">
                                                 <div class="image">
                                                     <a href="#">
-                                                        <img src="" alt="YUDHIS" /> </a>
+                                                        <img src="" alt="YUDHIS" />
+                                                    </a>
                                                 </div>
                                                 <div class="content">
                                                     <h5 class="name">
@@ -159,13 +164,13 @@ if (!$result) {
                     </div>
                 </div>
             </header>
+
             <div class="main-content">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col-lg-12">
                                 <h2 class="title-1 m-b-25">Daftar Tamu Booking Meeting</h2>
-                                
                                 <div class="table-responsive table--no-card m-b-40">
                                     <table class="table table-borderless table-striped table-earning">
                                         <thead>
@@ -181,78 +186,83 @@ if (!$result) {
                                                 <th class="text-center">Aksi</th>
                                             </tr>
                                         </thead>
-                                        
                                         <tbody>
                                             <?php
-                                            if ($result && mysqli_num_rows($result) > 0) {
-                                                
+                                           
+                                            if ($result && mysqli_num_rows($result) > 0) :
+                                               
                                                 $statuses = ['Booked', 'Checked-In', 'Checked-Out', 'Canceled'];
 
-                                                while ($row = mysqli_fetch_assoc($result)) {
+                                                while ($row = mysqli_fetch_assoc($result)) :
                                                     $waktu = htmlspecialchars($row['waktu_mulai']) . " - " . htmlspecialchars($row['waktu_selesai']);
-                                                    
-                                                    echo "<tr>";
-                                                    echo "<td>" . htmlspecialchars($row['id_reservasi_meeting']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['nama_lengkap']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['email']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['tipe_ruang_dipesan']) . "</td>";
-                                                    echo "<td>" . htmlspecialchars($row['tanggal_pemesanan']) . "</td>";
-                                                    echo "<td>" . $waktu . "</td>";
-                                                    
-                                                   
+
                                                     $status_reservasi = htmlspecialchars($row['status_reservasi']);
                                                     $badge_class = '';
-                                                    
-                                                    if ($status_reservasi == 'Booked') {
-                                                        $badge_class = 'badge-booked'; 
-                                                    } else if ($status_reservasi == 'Checked-In') {
-                                                        $badge_class = 'badge-checked-in'; 
-                                                    } else if ($status_reservasi == 'Checked-Out') {
-                                                        $badge_class = 'badge-checked-out'; 
-                                                    } else if ($status_reservasi == 'Canceled') {
-                                                        $badge_class = 'badge-canceled'; 
-                                                    } else {
-                                                        $badge_class = 'badge-secondary'; 
-                                                    }
-                                                    
-                                                    echo "<td><span class='badge-status {$badge_class}'>{$status_reservasi}</span></td>";
-                                                    
-                                                    echo "<form method='POST' action='update_status_meeting.php'>";
-                                                    echo "<input type='hidden' name='id_reservasi_meeting' value='" . $row['id_reservasi_meeting'] . "'>";
-                                                    
-                                                    echo "<td>";
-                                                    
-                                                    echo "<select name='new_status' class='form-control form-control-sm'>";
-                                                    foreach ($statuses as $status) {
-                                                        $selected = ($status == $row['status_reservasi']) ? 'selected' : '';
-                                                        echo "<option value='{$status}' {$selected}>{$status}</option>";
-                                                    }
-                                                    echo "</select>";
-                                                    echo "</td>";
 
-                                                    echo "<td class='text-center'>";
-                                                   
-                                                    echo "<button type='submit' class='btn btn-primary btn-sm' style='padding: 5px 10px;'>";
-                                                    echo "<i class='fa fa-edit'></i> Update";
-                                                    echo "</button>";
-                                                    echo "</td>";
-                                                    echo "</form>"; 
+                                                    switch ($status_reservasi) {
+                                                        case 'Booked':
+                                                            $badge_class = 'badge-booked';
+                                                            break;
+                                                        case 'Checked-In':
+                                                            $badge_class = 'badge-checked-in';
+                                                            break;
+                                                        case 'Checked-Out':
+                                                            $badge_class = 'badge-checked-out';
+                                                            break;
+                                                        case 'Canceled':
+                                                            $badge_class = 'badge-canceled';
+                                                            break;
+                                                        default:
+                                                            $badge_class = 'badge-secondary';
+                                                    }
+                                            ?>
+                                                    <tr>
+                                                        <td><?= htmlspecialchars($row['id_reservasi_meeting']) ?></td>
+                                                        <td><?= htmlspecialchars($row['nama_lengkap']) ?></td>
+                                                        <td><?= htmlspecialchars($row['email']) ?></td>
+                                                        <td><?= htmlspecialchars($row['tipe_ruang_dipesan']) ?></td>
+                                                        <td><?= htmlspecialchars($row['tanggal_pemesanan']) ?></td>
+                                                        <td><?= $waktu ?></td>
+                                                        <td>
+                                                            <span class="badge-status <?= $badge_class ?>"><?= $status_reservasi ?></span>
+                                                        </td>
 
-                                                    echo "</tr>";
-                                                }
-                                            } else {
-                                               
-                                                echo "<tr><td colspan='9' class='text-center'>Tidak ada data reservasi meeting ditemukan.</td></tr>";
-                                            }
+                                                        <form method='POST' action='update_status_meeting.php'>
+                                                            <input type='hidden' name='id_reservasi_meeting' value='<?= $row['id_reservasi_meeting'] ?>'>
+                                                            
+                                                            <td>
+                                                                <select name='new_status' class='form-control form-control-sm'>
+                                                                    <?php foreach ($statuses as $status) : ?>
+                                                                        <?php $selected = ($status == $row['status_reservasi']) ? 'selected' : ''; ?>
+                                                                        <option value='<?= $status ?>' <?= $selected ?>><?= $status ?></option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </td>
+
+                                                            <td class='text-center'>
+                                                                <button type='submit' class='btn btn-primary btn-sm' style='padding: 5px 10px;'>
+                                                                    <i class='fa fa-edit'></i> Update
+                                                                </button>
+                                                            </td>
+                                                        </form>
+                                                    </tr>
+                                                <?php
+                                                endwhile;
+                                            else :
+                                                ?>
+                                                <tr>
+                                                    <td colspan='9' class='text-center'>Tidak ada data reservasi meeting ditemukan.</td>
+                                                </tr>
+                                            <?php
+                                            endif;
                                             mysqli_close($conn);
                                             ?>
                                         </tbody>
-                                        </table>
+                                    </table>
                                 </div>
-                                
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="copyright">
@@ -263,12 +273,13 @@ if (!$result) {
                     </div>
                 </div>
             </div>
-            </div>
         </div>
-    
-     <script src="js/vanilla-utils.js"></script>
+    </div>
+
+    <script src="js/vanilla-utils.js"></script>
     <script src="vendor/bootstrap-5.3.8.bundle.min.js"></script>
     <script src="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.min.js"></script>
     <script src="js/main-vanilla.js"></script>
-    </body>
+</body>
+
 </html>

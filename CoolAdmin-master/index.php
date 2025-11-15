@@ -151,7 +151,7 @@ if ($hasil_popularitas_meeting) {
     <aside class="menu-sidebar d-none d-lg-block">
         <div class="logo">
             <a href="index.php">
-                <img src="../CoolAdmin-master/images/logo.png" alt="Luxury Hotel" style="width: 80px; height: 80px; margin-left: 4.5rem;"/>
+                <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
             </a>
         </div>
         <div class="menu-sidebar__content js-scrollbar1">
@@ -215,9 +215,9 @@ if ($hasil_popularitas_meeting) {
                                             </div>
                                             <div class="content">
                                                 <h5 class="name">
-                                                    <a href="#">john doe</a>
+                                                    <a href="#"></a>
                                                 </h5>
-                                                <span class="email">johndoe@example.com</span>
+                                                <span class="email"></span>
                                             </div>
                                         </div>
                                         <div class="account-dropdown__body">
@@ -368,19 +368,16 @@ if ($hasil_popularitas_meeting) {
     <script src="vendor/chartjs/chart.umd.js-4.5.0.min.js"></script>
 
     <script>
-    // Data dari PHP
     const pendapatanLabels = <?php echo json_encode($pendapatan_labels); ?>;
     const pendapatanData = <?php echo json_encode($pendapatan_data); ?>;
     
     const statusLabels = <?php echo json_encode($status_labels); ?>;
     const statusData = <?php echo json_encode($status_data); ?>;
 
-    // Data BARU untuk chart meeting (sekarang berisi popularitas)
+   
     const meetingStatusLabels = <?php echo json_encode($meeting_status_labels); ?>;
     const meetingStatusData = <?php echo json_encode($meeting_status_data); ?>;
 
-
-    // 1. Grafik Batang (Pendapatan)
     const ctxPendapatan = document.getElementById('pendapatanChart');
     if (ctxPendapatan) {
         new Chart(ctxPendapatan, {

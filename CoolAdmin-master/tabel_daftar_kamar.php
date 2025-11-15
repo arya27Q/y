@@ -43,7 +43,7 @@ if (!$result) {
             <div class="container-fluid">
                 <div class="header-mobile-inner">
                     <a class="logo" href="index.php">
-                        <img src="../CoolAdmin-master/images/logo.png" alt="Luxury Hotel" style="width: 80px; height: 80px; margin-left: 1rem;"/>
+                        <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
                     </a>
                     <button class="hamburger hamburger--slider" type="button">
                         <span class="hamburger-box">
@@ -86,7 +86,7 @@ if (!$result) {
     <aside class="menu-sidebar d-none d-lg-block">
         <div class="logo">
             <a href="index.php">
-                <img src="../CoolAdmin-master/images/logo.png" alt="Luxury Hotel" style="width: 80px; height: 80px; margin-left: 4.5rem;"/>
+                <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
             </a>
         </div>
         <div class="menu-sidebar__content js-scrollbar1">
