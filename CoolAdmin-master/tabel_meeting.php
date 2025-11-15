@@ -206,7 +206,7 @@ if (!$result) {
                                                     echo "<input type='hidden' name='id_reservasi_meeting' value='" . $row['id_reservasi_meeting'] . "'>";
                                                     
                                                     echo "<td>";
-                                                    echo "<select name='new_status' class='form-control form-control-sm' style='width: auto;'>";
+                                                    echo "<select name='new_status' class='form-control form-control-sm' '>";
                                                     foreach ($statuses as $status) {
                                                         $selected = ($status == $row['status_reservasi']) ? 'selected' : '';
                                                         echo "<option value='{$status}' {$selected}>{$status}</option>";

@@ -199,7 +199,7 @@ $result = mysqli_query($conn, $sql);
                                                     echo "<input type='hidden' name='id_reservasi' value='" . $row['id_reservasi'] . "'>";
                                                     
                                                     echo "<td>";
-                                                    echo "<select name='new_status' class='form-control form-control-sm' style='width: auto;'>";
+                                                    echo "<select name='new_status' class='form-control form-control-sm' ";
                                                     foreach ($statuses as $status) {
                                                         // Tampilkan status yang saat ini terpilih
                                                         $selected = ($status == $row['status_reservasi']) ? 'selected' : '';

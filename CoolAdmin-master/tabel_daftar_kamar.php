@@ -205,7 +205,7 @@ if (!$result) {
                                                 echo "<form method='POST' action='update_status_kamar.php'>";
                                                 echo "<input type='hidden' name='id_kamar' value='" . $row['id_kamar'] . "'>";
                                                 echo "<td>";
-                                                echo "<select name='new_status' class='form-control form-control-sm' style='width: auto;'>";
+                                                echo "<select name='new_status' class='form-control form-control-sm' ";
                                                 foreach ($statuses as $status) {
                                                     $selected = ($status == $row['status_kamar']) ? 'selected' : '';
                                                     echo "<option value='{$status}' {$selected}>{$status}</option>";
