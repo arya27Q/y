@@ -1,4 +1,5 @@
 <?php
+include '../php/session_check.php';
 include_once '../php/config.php';
 
 // (BARU) Atur koneksi untuk membaca data sebagai UTF-8
@@ -39,96 +40,10 @@ if (!$result) {
 <body>
 <div class="page-wrapper">
     
-    <aside class="menu-sidebar d-none d-lg-block">
-        <div class="logo">
-            <a href="index.php">
-              <h2 class="b1" style="color:#002877;">Luxury Hotel </h2>
-            </a>
-        </div>
-        <div class="menu-sidebar__content js-scrollbar1">
-            <nav class="navbar-sidebar">
-                <ul class="list-unstyled navbar__list">
-                    <li>
-                        <a href="index.php"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-                    </li>
-                    <li>
-                        <a href="tabel_daftar_kamar.php"><i class="fas fa-bed"></i>Daftar Kamar</a>
-                    </li>
-                    <li>
-                        <a href="table.php"><i class="fas fa-bed"></i>Reservasi Kamar</a>
-                    </li>
-                    <li>
-                        <a href="tabel_meeting.php"><i class="fas fa-desktop"></i>Reservasi Meeting</a>
-                    </li>
-                    <li class="active"> <a href="tabel_pembayaran.php"><i class="fas fa-credit-card"></i>Pembayaran</a>
-                    </li>
-                     <li><a href="tabel_pesan.php"><i class="fas fa-envelope"></i>Pesan Masuk</a></li>
-                    <li class="has-sub">
-                        <a class="js-arrow" href="#">
-                            <i class="fas fa-copy"></i>Pages</a>
-                        <ul class="list-unstyled navbar__sub-list js-sub-list">
-                            <li><a href="login.html">Login</a></li>
-                            <li><a href="register.html">Register</a></li>
-                            <li><a href="forget-pass.html">Forget Password</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </aside>
+    <?php include('_header_sidebar.php'); ?>
     <div class="page-container">
         
-        <header class="header-desktop">
-            <div class="section__content section__content--p30">
-                <div class="container-fluid">
-                    <div class="header-wrap">
-                        <form class="form-header" action="" method="POST">
-                            <input class="au-input au-input--xl" type="text" name="search" placeholder="Search for datas &amp; reports..." />
-                            <button class="au-btn--submit" type="submit">
-                                <i class="zmdi zmdi-search"></i>
-                            </button>
-                        </form>
-                        <div class="header-button">
-                            <div class="noti-wrap">
-                                </div>
-                            <div class="account-wrap">
-                                <div class="account-item clearfix js-item-menu">
-                                    <div class="image">
-                                        <img src="" alt="John Doe" />
-                                    </div>
-                                    <div class="content">
-                                        <a class="js-acc-btn" href="#">john doe</a>
-                                    </div>
-                                    <div class="account-dropdown js-dropdown">
-                                        <div class="info clearfix">
-                                            <div class="image">
-                                                <a href="#">
-                                                    <img src="" alt="" />
-                                                </a>
-                                            </div>
-                                            <div class="content">
-                                                <h5 class="name">
-                                                    <a href="#"></a>
-                                                </h5>
-                                                <span class="email"></span>
-                                            </div>
-                                        </div>
-                                        <div class="account-dropdown__body">
-                                            <div class="account-dropdown__item">
-                                                <a href="#"><i class="zmdi zmdi-account"></i>Account</a>
-                                            </div>
-                                        </div>
-                                        <div class="account-dropdown__footer">
-                                            <a href="#"><i class="zmdi zmdi-power"></i>Logout</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        <?php include('_header_desktop.php'); ?>
         <div class="main-content">
             <div class="section__content section__content--p30">
                 <div class="container-fluid">
@@ -156,7 +71,7 @@ if (!$result) {
                                         <?php
                                         if ($result && mysqli_num_rows($result) > 0) {
                                            
-                                            $statuses = ['Pending', 'Paid', 'Lunas', 'Failed', 'Refunded']; 
+                                            $statuses = ['Pending', 'Paid', 'Failed', 'Refunded']; 
 
                                             while ($row = mysqli_fetch_assoc($result)) {
                                                 echo "<tr>";
@@ -201,11 +116,25 @@ if (!$result) {
                                                 echo "</td>";
 
                                                 echo "<td class='text-center'>";
-                                                echo "<button type='submit' class='btn btn-warning btn-sm' style='padding: 5px 10px; color: #fff;'>"; // Tombol Update
-                                                echo "<i class='fa fa-edit'></i> Update";
-                                                echo "</button>";
-                                                echo "</td>";
-                                                echo "</form>"; 
+echo "<div class='table-data-feature' style='display:flex; justify-content:center; gap:5px;'>"; // Container agar tombol sejajar
+
+    // 1. Form Update Status (Yang Lama)
+    echo "<form method='POST' action='update_status_pembayaran.php' style='margin:0;'>";
+    echo "<input type='hidden' name='payment_id' value='" . $row['payment_id'] . "'>";
+    // ... (kode select dropdown) ... (Anda mungkin perlu menyesuaikan posisi dropdown agar rapi)
+    // Tombol Update (disederhanakan agar muat)
+    echo "<button type='submit' class='item' data-toggle='tooltip' data-placement='top' title='Update Status' style='background:none; border:none;'>";
+    echo "<i class='zmdi zmdi-refresh-sync' style='color: orange; font-size: 20px;'></i>"; 
+    echo "</button>";
+    echo "</form>";
+
+    // 2. Tombol Print Invoice (YANG BARU)
+    echo "<a href='invoice.php?id=" . $row['payment_id'] . "' target='_blank' class='item' data-toggle='tooltip' data-placement='top' title='Cetak Invoice'>";
+    echo "<i class='zmdi zmdi-print' style='color: #002877; font-size: 20px;'></i>";
+    echo "</a>";
+
+echo "</div>";
+echo "</td>";
 
                                                 echo "</tr>";
                                             }
