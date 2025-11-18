@@ -28,6 +28,276 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 mysqli_stmt_store_result($stmt);
 
                 if (mysqli_stmt_num_rows($stmt) == 1) {
+<<<<<<< HEAD
+                    // Email ada, buat token
+                    $token = bin2hex(random_bytes(50));
+                    $expires = date("Y-m-d H:i:s", strtotime('+1 hour'));
+
+                    // Simpan token ke database
+                    $sql_update = "UPDATE admin SET reset_token = ?, reset_token_expires = ? WHERE email = ?";
+                    if ($stmt_update = mysqli_prepare($conn, $sql_update)) {
+                        mysqli_stmt_bind_param($stmt_update, "sss", $token, $expires, $email);
+                        mysqli_stmt_execute($stmt_update);
+                        mysqli_stmt_close($stmt_update);
+
+                        // Kirim email (Gunakan PHPMailer)
+                        $mail = new PHPMailer(true);
+                        $reset_link = "http://localhost/folder-proyek-anda/reset-password.php?to
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                      
+                        
+                        ken=" . $token; // SESUAIKAN LINK INI
+
+                        try {
+                            // Pengaturan Server (Gunakan SMTP, contoh: Gmail)
+                            // $mail->isSMTP();
+                            // $mail->Host       = 'smtp.gmail.com';
+                            // $mail->SMTPAuth   = true;
+                            // $mail->Username   = 'emailanda@gmail.com';
+                            // $mail->Password   = 'password-app-gmail-anda';
+                            // $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                            // $mail->Port       = 587;
+
+                            // //Penerima
+                            // $mail->setFrom('no-reply@hotelanda.com', 'Admin Hotel');
+                            // $mail->addAddress($email);
+
+                            // //Konten
+                            // $mail->isHTML(true);
+                            // $mail->Subject = 'Reset Password Akun Admin Hotel';
+                            // $mail->Body    = 'Klik link berikut untuk mereset password Anda: <a href="' . $reset_link . '">' . $reset_link . '</a>';
+                            
+                            // $mail->send();
+                            
+                            // --- HAPUS BAGIAN DI BAWAH INI JIKA SUDAH MENGATUR EMAIL ---
+                            // Ini hanya simulasi karena email belum di-setup
+                            echo "<b>SIMULASI (Hapus ini nanti):</b> Link reset Anda adalah: <a href='$reset_link'>$reset_link</a>";
+                            // --- BATAS SIMULASI ---
+
+                            $message = "Jika akun dengan email tersebut ada, link reset password telah dikirim.";
+
+                        } catch (Exception $e) {
+                            $message = "Gagal mengirim email. Mailer Error: {$mail->ErrorInfo}";
+                        }
+                    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
+=======
                     // Email ditemukan! (Simulasi Reset)
                     // Di sistem nyata, di sini Anda generate token & kirim email via PHPMailer
                     
@@ -37,6 +307,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     
                     // TODO: Implementasi PHPMailer di sini jika sudah siap
                     
+>>>>>>> d1fc39ca29ddcb084285019d74476b24bac6292e
                 } else {
                     // Email tidak ditemukan, tapi demi keamanan kita beri pesan umum
                     $message = "Jika email terdaftar, link reset telah dikirim.";
