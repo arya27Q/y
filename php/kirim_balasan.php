@@ -25,8 +25,8 @@ if (isset($_POST['kirim_balasan'])) {
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com'; // Host Gmail
         $mail->SMTPAuth   = true;
-        $mail->Username   = 'email@gmail.com'; // GANTI DENGAN EMAIL ADMIN
-        $mail->Password   = 'password 16 digit';   // GANTI DENGAN APP PASSWORD (BUKAN PASSWORD LOGIN BIASA)
+        $mail->Username   = 'owencita32@gmail.com'; // GANTI DENGAN EMAIL ADMIN
+        $mail->Password   = 'uxec fctn ulex tneq';   // GANTI DENGAN APP PASSWORD (BUKAN PASSWORD LOGIN BIASA)
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
