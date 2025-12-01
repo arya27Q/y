@@ -3820,10 +3820,64 @@ a:hover {
     }
     .badge-super { background-color: #002877; } /* Biru Tua */
     .badge-admin { background-color: #6c757d; } /* Abu-abu */
+    /* Container pembungkus tombol agar ada di tengah */
+.table-data-feature {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* Jarak antar tombol */
+}
+
+/* Styling dasar tombol kotak */
+.table-data-feature .item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;       /* Lebar kotak */
+    height: 38px;      /* Tinggi kotak */
+    border-radius: 5px; /* Biar sudutnya tidak tajam (sedikit melengkung) */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Bayangan tipis */
+    transition: all 0.3s ease; /* Animasi halus saat hover */
+    text-decoration: none;
+}
+
+/* Warna Khusus Tombol Edit (Kuning/Orange) */
+.table-data-feature .item.btn-edit {
+    background-color: #ffc107;
+    border: 1px solid #ffc107;
+}
+
+/* Warna Khusus Tombol Hapus (Merah) */
+.table-data-feature .item.btn-delete {
+    background-color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+/* Warna Icon di dalam tombol (Putih) */
+.table-data-feature .item i {
+    font-size: 18px;
+    color: #ffffff; 
+}
+
+/* Efek Hover (Saat mouse diarahkan ke tombol) */
+.table-data-feature .item:hover {
+    transform: translateY(-3px); /* Tombol naik sedikit */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Bayangan makin jelas */
+}
+
+/* Hover Edit jadi agak gelap */
+.table-data-feature .item.btn-edit:hover {
+    background-color: #e0a800; 
+}
+
+/* Hover Hapus jadi agak gelap */
+.table-data-feature .item.btn-delete:hover {
+    background-color: #c82333; 
+}
 /*-----------------------------------------------------*/
 /*                   TRUMPS                            */
 /*-----------------------------------------------------*/
 /*Padding, margin*/
+
 .p-b-0 {
     padding-bottom: 0px;
 }

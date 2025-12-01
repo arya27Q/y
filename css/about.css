@@ -35,7 +35,7 @@ nav a {
   color: black;
   font-weight: 500;
   padding: 8px 15px;      
-  border-radius: 5px;      
+  border-radius: 20px;      
   display: inline-block;   
   transition: background 0.3s, color 0.3s;
   animation: fadeUp 1s ease forwards;

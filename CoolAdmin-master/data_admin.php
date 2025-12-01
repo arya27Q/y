@@ -1,5 +1,5 @@
 <?php
-// 1. Session & Config (Sama seperti index.php)
+// 1. Session & Config
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// 2. Logic Header User (Sama seperti index.php)
+// 2. Logic Header User
 $default_img_path = "images/icon/avatar-default.jpg"; 
 $current_user_email = "N/A";
 $current_user_img_src = $default_img_path; 
@@ -28,7 +28,7 @@ if (isset($_SESSION['user_id'])) {
     if ($result->num_rows > 0) {
         $user_db_data = $result->fetch_assoc();
         $current_user_email = $user_db_data['email'];
-        $_SESSION['role'] = $user_db_data['role']; // Update session role
+        $_SESSION['role'] = $user_db_data['role']; 
         
         if (!empty($user_db_data['profile_img'])) {
             $current_user_img_src = '../' . $user_db_data['profile_img'];
@@ -39,7 +39,7 @@ if (isset($_SESSION['user_id'])) {
     $stmt->close();
 }
 
-// 3. Update Status Online (Khusus halaman ini)
+// 3. Update Status Online
 if (isset($_SESSION['username'])) {
     $user_now = $_SESSION['username'];
     $stmt_update = $conn->prepare("UPDATE users SET last_activity = NOW() WHERE username = ?");
@@ -48,7 +48,7 @@ if (isset($_SESSION['username'])) {
 }
 
 // 4. Ambil Data Admin untuk Tabel
-$sql = "SELECT * FROM users ORDER BY role DESC, username ASC";
+$sql = "SELECT id, username, email, role, last_activity, profile_img FROM users ORDER BY role DESC, username ASC";
 $result_admin = $conn->query($sql);
 ?>
 
@@ -68,7 +68,6 @@ $result_admin = $conn->query($sql);
     <link href="css/theme.css" rel="stylesheet" media="all">
     <link href="css/custom-dashboard.css" rel="stylesheet" media="all">
 
-   
 </head>
 
 <body class="animsition">
@@ -81,9 +80,7 @@ $result_admin = $conn->query($sql);
                         <h2 class="b1" style="color:#002877;">Luxury Hotel</h2>
                     </a>
                     <button class="hamburger hamburger--slider" type="button">
-                        <span class="hamburger-box">
-                            <span class="hamburger-inner"></span>
-                        </span>
+                        <span class="hamburger-box"><span class="hamburger-inner"></span></span>
                     </button>
                 </div>
             </div>
@@ -92,13 +89,10 @@ $result_admin = $conn->query($sql);
             <div class="container-fluid">
                 <ul class="navbar-mobile__list list-unstyled">
                     <li><a href="index.php"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
-                    
                     <li class="has-sub">
                         <a class="js-arrow" href="#"><i class="fas fa-copy"></i>Pages</a>
                         <ul class="list-unstyled navbar__sub-list js-sub-list">
                             <li><a href="login.php">Login</a></li>
-                            <li><a href="register.php">Register</a></li>
-                            <li><a href="forget-pass.php">Forget Password</a></li>
                             <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'super_admin') : ?>
                             <li class="active"><a href="data_admin.php"><i class="fas fa-users"></i> Data Admin</a></li>
                             <?php endif; ?>
@@ -118,6 +112,12 @@ $result_admin = $conn->query($sql);
             <div class="section__content section__content--p30">
                 <div class="container-fluid">
                     
+                    <?php if(isset($_GET['msg']) && $_GET['msg'] == 'deleted'): ?>
+                        <div class="alert alert-success">Data berhasil dihapus.</div>
+                    <?php elseif(isset($_GET['msg']) && $_GET['msg'] == 'updated'): ?>
+                        <div class="alert alert-success">Data berhasil diperbarui.</div>
+                    <?php endif; ?>
+
                     <div class="row">
                         <div class="col-md-12">
                             <h3 class="title-5 m-b-35">Data Administrator</h3>
@@ -132,6 +132,7 @@ $result_admin = $conn->query($sql);
                                             <th>Role</th>
                                             <th>Status</th>
                                             <th>Last Seen</th>
+                                            <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -146,6 +147,7 @@ $result_admin = $conn->query($sql);
                                                         $is_online = true;
                                                     }
                                                 }
+                                                $id_admin = $row['id']; 
                                         ?>
                                         <tr>
                                             <td><?php echo $no++; ?></td>
@@ -166,11 +168,36 @@ $result_admin = $conn->query($sql);
                                                 <?php endif; ?>
                                             </td>
                                             <td><?php echo $row['last_activity'] ? date('d-m-Y H:i', strtotime($row['last_activity'])) : '-'; ?></td>
+                                            
+                                            <td class="text-center">
+                                                <div class="table-data-feature justify-content-center">
+                                                    
+                                                    <a href="edit_admin.php?id=<?php echo $id_admin; ?>" 
+                                                       class="item btn-edit" 
+                                                       data-toggle="tooltip" 
+                                                       data-placement="top" 
+                                                       title="Edit">
+                                                        <i class="zmdi zmdi-edit"></i>
+                                                    </a>
+                                                    
+                                                    <?php if($_SESSION['user_id'] != $id_admin): ?>
+                                                    <a href="delete_admin.php?id=<?php echo $id_admin; ?>" 
+                                                       class="item btn-delete" 
+                                                       data-toggle="tooltip" 
+                                                       data-placement="top" 
+                                                       title="Delete" 
+                                                       onclick="return confirm('Yakin hapus user <?php echo $row['username']; ?>?');">
+                                                        <i class="zmdi zmdi-delete"></i>
+                                                    </a>
+                                                    <?php endif; ?>
+
+                                                </div>
+                                            </td>
                                         </tr>
                                         <?php 
                                             }
                                         } else {
-                                            echo "<tr><td colspan='6' class='text-center'>Tidak ada data admin.</td></tr>";
+                                            echo "<tr><td colspan='7' class='text-center'>Tidak ada data admin.</td></tr>";
                                         }
                                         ?>
                                     </tbody>
@@ -190,16 +217,14 @@ $result_admin = $conn->query($sql);
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 </div>
 
-    <script src="js/vanilla-utils.js"></script>
-    <script src="vendor/jquery-3.2.1.min.js"></script>
-    <script src="vendor/bootstrap-5.3.8.bundle.min.js"></script>
-    <script src="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.min.js"></script>
-    <script src="vendor/chartjs/chart.umd.js-4.5.0.min.js"></script>
-    
-    <script src="js/main-vanilla.js"></script>
+<script src="js/vanilla-utils.js"></script>
+<script src="vendor/jquery-3.2.1.min.js"></script>
+<script src="vendor/bootstrap-5.3.8.bundle.min.js"></script>
+<script src="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.min.js"></script>
+<script src="js/main-vanilla.js"></script>
 
 </body>
 </html>

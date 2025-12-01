@@ -8,10 +8,13 @@ $default_img_path = "images/icon/avatar-default.jpg";
 $current_user_email = "N/A";
 $current_user_img_src = $default_img_path; // Ini yang akan digunakan di tag <img>
 
+// ... kode atas tetap sama ...
+
 if (isset($_SESSION['user_id'])) {
     $user_id = $_SESSION['user_id'];
     
-    $stmt = $conn->prepare("SELECT email, profile_img FROM users WHERE id = ?");
+    // PERBAIKAN: Tambahkan ', role' di dalam SELECT
+    $stmt = $conn->prepare("SELECT email, profile_img, role FROM users WHERE id = ?");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -19,9 +22,11 @@ if (isset($_SESSION['user_id'])) {
     if ($result->num_rows > 0) {
         $user_db_data = $result->fetch_assoc();
         $current_user_email = $user_db_data['email'];
+
+        // PERBAIKAN: Paksa update session role dengan data terbaru dari database
+        $_SESSION['role'] = $user_db_data['role']; 
         
         if (!empty($user_db_data['profile_img'])) {
-            
             $current_user_img_src = '../' . $user_db_data['profile_img'];
         } else {
             $current_user_img_src = $default_img_path;
@@ -29,6 +34,8 @@ if (isset($_SESSION['user_id'])) {
     }
     $stmt->close();
 }
+
+// ... kode bawah tetap sama ...
 
 $sql_terisi = "SELECT COUNT(*) as total_terisi FROM reservasi_kamar WHERE status_reservasi = 'Checked-In'";
 $hasil_terisi = mysqli_query($conn, $sql_terisi);

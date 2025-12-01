@@ -4,14 +4,11 @@ session_start();
 header("Content-Type: text/html; charset=UTF-8");
 date_default_timezone_set('Asia/Jakarta');
 
-// ========================================================
-// ========= BLOK YANG HILANG (TAMBAHKAN INI) =============
-// ========================================================
-$kode_dari_url = ""; // Buat variabelnya sebagai string kosong
+$kode_dari_url = ""; 
 
-// Cek apakah ada 'promo_code' di URL (saat datang dari special_offer.php)
+
 if ( isset($_GET['promo_code']) ) {
-    // Jika ada, isi variabelnya
+    
     $kode_dari_url = htmlspecialchars($_GET['promo_code']);
 }
 
@@ -66,21 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
         } catch (Exception $e) {
             $jumlah_malam = 1;
         }
-// ... (kode Anda menghitung $jumlah_malam) ...
         
         $total_biaya_asli = $harga_per_malam_dari_js * $jumlah_malam;
         $total_biaya = $total_biaya_asli; // Set default ke harga asli
 
-        // ========================================================
-        // ========= BLOK PROMO YANG HILANG (TAMBAHKAN INI) ========
-        // ========================================================
-        
-        // 1. Ambil kode promo DARI LUAR LOOP (kita definisikan sekali saja)
-        // (Pindahkan ini ke ATAS 'foreach' agar lebih efisien)
-        static $diskon_data = null; // Gunakan 'static' agar query promo hanya jalan sekali
-        if ($diskon_data === null) { // Hanya cek DB pada item pertama
+       
+        static $diskon_data = null; 
+        if ($diskon_data === null) { 
             $kode_promo_input = $data['promo_code'] ?? null;
-            $diskon_data = false; // Set default ke 'false' (tidak ada promo)
+            $diskon_data = false; 
 
             if (!empty($kode_promo_input)) {
                 $sql_promo = "SELECT * FROM promo 
@@ -97,8 +88,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
             }
         }
 
-        // 2. Aplikasikan diskon jika valid
-        // Cek apakah ada data diskon DAN diskon itu berlaku untuk 'kamar' atau 'semua'
         if ($diskon_data && ($diskon_data['berlaku_untuk'] == 'kamar' || $diskon_data['berlaku_untuk'] == 'semua')) {
             
             if ($diskon_data['tipe_diskon'] == 'persen') {
@@ -113,12 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
                 }
             }
         }
-        // ========================================================
-        // ================ AKHIR BLOK PROMO ======================
-        // ========================================================
-
-        
-        // Asumsi kolom status Anda bernama 'status_kamar' dan nilai defaultnya 'Available'
+       
         $sql_get_kamar = "SELECT id_kamar FROM kamar 
                           WHERE tipe_kamar = ? AND status_kamar = 'Available' 
                           ORDER BY id_kamar LIMIT 1 FOR UPDATE"; 
@@ -141,8 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
             $row = $result->fetch_assoc();
             $id_kamar = $row['id_kamar']; // Ini adalah ID kamar spesifik yang tersedia
 
-            // 1. Mulai coba INSERT dan UPDATE
-         // 1. Mulai coba TIGA query
             try {
                 // Query 1: Masukkan ke reservasi
                 $sql_insert = "INSERT INTO reservasi_kamar 

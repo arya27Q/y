@@ -2,6 +2,7 @@
 include '../php/session_check.php';
 include_once '../php/config.php';
 
+
 // Atur koneksi untuk membaca data sebagai UTF-8
 mysqli_set_charset($conn, "utf8"); 
 
