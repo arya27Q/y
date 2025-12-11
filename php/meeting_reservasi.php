@@ -274,8 +274,10 @@ $result_rooms = $conn->query($sql_get_rooms);
   		<button id="bookNowMeeting" class="button2">Book Now</button>
 	</div>
 
-	</div> </section> </section>   	<footer>
-    	  	</footer>
+	</div> 
+</section> 
+</section>  
+ 
 
 <script src="../js/user-section.js"></script> 
 

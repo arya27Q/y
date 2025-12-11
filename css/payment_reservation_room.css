@@ -60,7 +60,7 @@ nav a:hover {
   padding: 20px;
   margin-bottom: 50px;
   background-image: linear-gradient(rgba(0, 0, 0, 0.356), rgba(0, 0, 0, 0.4)),
-  url('/img/bayar.png');
+  url('../img/bayar.png');
   background-blend-mode: darken;
 
   

@@ -209,7 +209,7 @@ include '../php/login_process.php';
                     <div class="login-content">
                         <div class="login-logo text-center">
                             <a href="#">
-                                <img src="../img/logo.png" alt="CoolAdmin">
+                                <img src="../CoolAdmin-master/images/logo.png" alt="CoolAdmin">
                             </a>
                             <h3>Welcome Back</h3>
                             <p class="text-muted">Sign in to your dashboard</p>

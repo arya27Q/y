@@ -186,7 +186,9 @@ $total_semua = 0;
     <img src="../img/logo.png" alt="Luxury Hotel">
     <nav>
       <a href="home.php">Home</a>
-      <a href="reservasi_hotel.php">Room</a> <a href="meeting_reservasi.php">Meeting</a> <a href="facilities.php">Facilities</a>
+      <a href="reservasi_hotel.php">Room</a> 
+      <a href="meeting_reservasi.php">Meeting</a>
+       <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
    <div class="user-menu">
