@@ -39,6 +39,7 @@ if (!empty($current_img_db) && $current_img_db !== $default_img_path) {
     <link href="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.css" rel="stylesheet" media="all">
     <link href="css/theme.css" rel="stylesheet" media="all">
     <link href="css/custom-dashboard.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="mobile-admin.css">
 
     <style>
         .alert-message { padding: 15px; margin-bottom: 25px; border-radius: 5px; color: #fff; font-weight: 500; }

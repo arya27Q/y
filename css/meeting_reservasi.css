@@ -452,6 +452,200 @@ button:hover::after,  .a:hover::after, .back-top:hover::after {
 }
 
 
-footer {
-  animation: fadeIn 2s ease forwards;
+
+.menu-toggle {
+    display: none; 
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #0026ff;
+    padding: 10px;
 }
+
+/* ======================================= */
+/* MEDIA QUERY UTAMA (<= 768px) - SEMUA ATURAN DI SINI */
+/* ======================================= */
+@media screen and (max-width: 768px) {
+
+    /* --- HEADER & NAVIGASI (Hanya perlu mengatur ulang) --- */
+    header {
+        /* Hapus padding-left: 0 !important yang merusak desktop */
+        padding: 15px 20px; 
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    /* Tampilkan tombol Hamburger & atur urutan */
+    .menu-toggle {
+        display: block; 
+        order: 1;
+        margin: 0;
+        padding-left: 8px;
+    }
+
+    /* Logo & User Menu */
+    header img { order: 2; margin-left: 5px; }
+    .user-menu { order: 3; margin-left: auto; }
+
+    /* Navigasi mobile */
+    nav {
+        display: none; 
+        position: absolute;
+        top: 80px; 
+        left: 0;
+        width: 100%;
+        background: #fff;
+        flex-direction: column;
+        align-items: center; /* Menengahkan menu */
+        padding: 10px 0;
+        z-index: 999;
+    }
+
+    nav.active { display: flex !important; }
+    nav a {
+        width: auto;
+        margin: 5px 0;
+        text-align: center;
+        /* Hapus styling lain yang tidak perlu */
+    }
+
+    .dropdown {
+        right: 20px;
+        top: 60px;
+    }
+
+    /* --- HERO & JUDUL --- */
+    .background, .background-img {
+        height: 40vh; 
+        padding: 10px;
+        background-position: center;
+    }
+
+    .background h1, .background h2, 
+    .background-img h1, .background-img h2 {
+        font-size: 2.5rem !important; 
+        margin: 0 !important;
+        padding: 0 10px;
+    }
+    
+    .why, section { padding: 40px 20px; }
+    .stay { font-size: 16px; }
+    .hotel-title { padding: 15px 10px; }
+
+
+    /* ==================================== */
+    /* INTI PERBAIKAN RESERVASI KAMAR */
+    /* ==================================== */
+
+    .reservation {
+        width: 95%; 
+        max-width: none; 
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .hotel-info {
+        /* MEMAKSA LAYOUT KE VERTICAL: Check-in, Kamar, Keranjang */
+        display: flex !important;
+        flex-direction: column !important; 
+        gap: 20px;
+    }
+
+    /* --- FORM TANGGAL CHECK-IN/OUT --- */
+    .date-form {
+        width: 100%; 
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .date-form label {
+        display: flex !important; 
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 14px;
+        min-width: 100%;
+    }
+
+    .date-form input {
+        width: 55%; 
+        box-sizing: border-box;
+    }
+
+    /* --- BOOKING LIST (Daftar Kamar) --- */
+    .booking-list {
+        width: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .room-card {
+        width: 95% !important; 
+        max-width: none; 
+        margin: 0 auto; 
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .room-card img {
+        max-width: 90%; 
+    }
+
+    /* --- MY BOOKING (KERANJANG) --- */
+    .my-booking {
+        position: static !important; /* Hapus sticky */
+        width: 100% !important; 
+        max-width: none !important; 
+        margin-top: 20px;
+        box-sizing: border-box;
+    }
+
+    .my-booking #kode_promo_input, 
+    .my-booking .btn-book {
+        width: 100% !important; 
+        box-sizing: border-box;
+    }
+
+    /* --- FOOTER & ANIMASI --- */
+
+    footer { padding: 20px 20px; }
+    .footer-container { flex-direction: column; text-align: center; }
+    .footer-left, .footer-right { margin-bottom: 15px; }
+    .back-top { margin-left: 0; }
+    
+    /* Menonaktifkan animasi di mobile */
+    h1, h2, h3, p, header, .hero, .features, #gallery, .promo, footer, header img, nav a, .btn {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+
+} 
+ @media screen and (max-width: 768px) {
+
+    /* FOOTER MOBILE */
+    footer { 
+        padding: 20px 20px; 
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-left, 
+    .footer-right { 
+        margin-bottom: 15px; 
+    }
+
+    .back-top { 
+        margin-left: 0; 
+    }
+  }
+

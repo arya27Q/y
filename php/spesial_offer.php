@@ -20,25 +20,31 @@ $query_offers = mysqli_query($conn, "SELECT * FROM special_offers");
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="../css/spesial_offer.css">
 </head>
-<body id="top"> <header>
+<body id="top"> 
+<header>
     <img src="../img/logo.png" alt="Luxury Hotel">
-    <nav>
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
       <a href="home.php">Home</a>
-      <a href="reservasi_hotel.php">Room</a>
-      <a href="meeting_reservasi.php">Meeting</a>
+      <a href="room.php">Room</a>
+      <a href="meeting.php">Meeting</a>
       <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
+    
     <div class="user-menu">
-      <a class="a" href="#" id="userIcon">
+      <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
         <i class="fa-solid fa-user"></i>
         <i class="fa-solid fa-caret-down"></i>
       </a>
-      <div class="dropdown" id="dropdownMenu">
-        <?php include 'status_menu.php'; ?>
-      </div>
     </div>
-  </header>
+    <div class="dropdown" id="dropdownMenu">
+      <?php include 'status_menu.php'; ?>
+    </div>
+</header>
 
   <section class="special-hero">
     <h1><i class="fa-solid fa-gift"></i> Special Offers</h1>
@@ -96,5 +102,7 @@ $query_offers = mysqli_query($conn, "SELECT * FROM special_offers");
 
   <script src="../js/spesial_offer.js"></script>
   <script src="../js/user-section.js"></script>
+  <script src="../js/mobile_menu.js"></script>
+
 </body>
 </html>

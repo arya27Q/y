@@ -117,23 +117,28 @@ $foto_profil_url = $has_profile_photo ? htmlspecialchars($tamu_data['foto_profil
 <body>
 
 <header>
- <img src="../img/logo.png" alt="Luxury Hotel">
- <nav>
-<a href="home.php">Home</a>
-<a href="reservasi_hotel.php">Room</a>
- <a href="meeting_reservasi.php">Meeting</a>
- <a href="facilities.php">Facilities</a>
+    <img src="../img/logo.png" alt="Luxury Hotel">
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
+      <a href="home.php">Home</a>
+      <a href="room.php">Room</a>
+      <a href="meeting.php">Meeting</a>
+      <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
-      </nav>
-<div class="user-menu">
- <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
- <i class="fa-solid fa-user" style="color:#0026ff!important;"></i>
-<i class="fa-solid fa-caret-down" style="color:#0026ff!important;"></i>
- </a>
-  </div>
-  <div class="dropdown" id="dropdownMenu">
-     <?php include 'status_menu.php'; ?> 
-</div>
+    </nav>
+    
+    <div class="user-menu">
+      <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
+        <i class="fa-solid fa-user"></i>
+        <i class="fa-solid fa-caret-down"></i>
+      </a>
+    </div>
+    <div class="dropdown" id="dropdownMenu">
+      <?php include 'status_menu.php'; ?>
+    </div>
 </header>
 
 <section class="profile-banner">
@@ -220,6 +225,7 @@ $foto_profil_url = $has_profile_photo ? htmlspecialchars($tamu_data['foto_profil
 </footer>
 
 <script src="../js/user-section.js"></script>
+<script src="../js/mobile_menu.js"></script>
 <script>
 document.getElementById('foto_profil').addEventListener('change', function(event) {
     const [file] = event.target.files;

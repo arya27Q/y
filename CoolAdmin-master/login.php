@@ -153,8 +153,6 @@ include '../php/login_process.php';
         .login-checkbox a:hover {
             text-decoration: underline;
         }
-
-        /* Tombol Login */
         .au-btn--green {
             background: linear-gradient(45deg, #002877, #0044cc);
             border: none;
@@ -174,8 +172,6 @@ include '../php/login_process.php';
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 40, 119, 0.4);
         }
-
-        /* Footer Link */
         .register-link {
             margin-top: 15px;
             font-size: 13px;
@@ -183,8 +179,6 @@ include '../php/login_process.php';
         .register-link p { margin-bottom: 0; color: #666; }
         .register-link a { color: #002877; font-weight: 700; text-decoration: none; }
         .register-link a:hover { text-decoration: underline; }
-
-        /* Alert Styling */
         .alert-message {
             padding: 10px 15px;
             margin-bottom: 20px;
@@ -198,6 +192,88 @@ include '../php/login_process.php';
             color: #721c24; 
             border: 1px solid #f5c6cb; 
         }
+
+@media screen and (max-width: 768px) {
+
+.login-checkbox label {
+    margin: 0 !important; 
+    padding: 0;
+    display: inline-flex !important; 
+    align-items: center; 
+}
+
+.login-checkbox input[type="checkbox"] {
+    margin-right: 4px !important; 
+    margin-left: 0 !important;
+}
+.login-checkbox {
+    justify-content: flex-start !important; 
+    gap: 20px; 
+}
+
+.login-checkbox label:nth-child(2) {
+    margin-left: auto !important; 
+}
+.login-checkbox {
+    padding-left: 0 !important; 
+    padding-right: 0 !important;
+    justify-content: flex-start !important; 
+    gap: 15px; 
+}
+
+.login-checkbox label:nth-child(1) {
+    margin: 0 !important; 
+    padding: 0 !important; 
+    display: flex !important; 
+    align-items: center; 
+    margin-right: auto !important; 
+}
+
+.login-checkbox input[type="checkbox"] {
+    margin-left: 0 !important;
+    margin-right: 4px !important; 
+}
+
+.login-checkbox label:nth-child(2) {
+    margin-left: auto !important; 
+    padding: 0;
+}
+/* --- PERBAIKAN KOTAK PESAN SUKSES/DANGER (Alert Message) --- */
+
+.alert-message {
+    width: 100% !important; 
+    max-width: none !important;
+    padding: 10px 10px !important; 
+    
+    /* Memaksa Flexbox untuk menyusun konten */
+    display: flex !important;
+    align-items: flex-start !important; /* Icon di atas, teks mengikuti */
+    text-align: left !important;
+    box-sizing: border-box;
+    
+    /* Kunci 1: Memastikan kontainer utama tidak memanjang */
+    white-space: normal !important; 
+}
+
+/* Kunci 2: Target elemen teks (turunan alert-message) */
+.alert-message, 
+.alert-message p,
+.alert-message a,
+.alert-message b {
+    /* Memastikan teks sangat panjang (seperti URL) dipotong ke baris berikutnya */
+    word-break: break-all !important; /* Memecah kata panjang apa pun */
+    white-space: normal !important;
+    hyphens: auto; /* Membantu pemotongan kata */
+}
+
+/* Mengatur Icon */
+.alert-message i {
+    margin-right: 8px !important; 
+    flex-shrink: 0 !important; 
+    margin-top: 2px;
+}
+        }
+    
     </style>
 </head>
 

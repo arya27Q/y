@@ -3873,10 +3873,14 @@ a:hover {
 .table-data-feature .item.btn-delete:hover {
     background-color: #c82333; 
 }
-/*-----------------------------------------------------*/
-/*                   TRUMPS                            */
-/*-----------------------------------------------------*/
-/*Padding, margin*/
+.header-wrap {
+    display: flex !important;
+    justify-content: flex-end !important;
+    align-items: center;
+}
+
+
+
 
 .p-b-0 {
     padding-bottom: 0px;
@@ -12529,3 +12533,4 @@ a:hover {
 .vue-lists ul, .vue-lists ol {
     padding-left: 30px;
 }
+

@@ -220,24 +220,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
 
   <body>
     <header>
-      <img src="../img/logo.png" alt="Luxury Hotel" />
-      <nav>
-        <a href="home.php">Home</a>
-        <a href="reservasi_hotel.php">Room</a>
-        <a href="meeting_reservasi.php">Meeting</a>
-        <a href="facilities.php">Facilities</a>
-        <a href="about.php">About us</a>
-      </nav>
-      <div class="user-menu">
-        <a class="a" href="#" id="userIcon">
-          <i class="fa-solid fa-user"></i>
-          <i class="fa-solid fa-caret-down"></i>
-        </a>
-        <div class="dropdown" id="dropdownMenu">
-          <?php include 'status_menu.php'; ?>
-        </div>
-      </div>
-    </header>
+    <img src="../img/logo.png" alt="Luxury Hotel">
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
+      <a href="home.php">Home</a>
+      <a href="room.php">Room</a>
+      <a href="meeting.php">Meeting</a>
+      <a href="facilities.php">Facilities</a>
+      <a href="about.php">About us</a>
+    </nav>
+    
+    <div class="user-menu">
+      <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
+        <i class="fa-solid fa-user"></i>
+        <i class="fa-solid fa-caret-down"></i>
+      </a>
+    </div>
+    <div class="dropdown" id="dropdownMenu">
+      <?php include 'status_menu.php'; ?>
+    </div>
+</header>
 
     <section class="background">
       <h1>RESERVATION ROOM</h1>
@@ -348,5 +353,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && strpos($_SERVER['CONTENT_TYPE'], 'a
 
     <script src="../js/reservation_room.js"></script>
     <script src="../js/user-section.js"></script>
+    <script src="../js/mobile_menu.js"></script>
   </body>
 </html>

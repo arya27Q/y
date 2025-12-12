@@ -26,13 +26,18 @@ $query_reviews = mysqli_query($conn, "SELECT * FROM home_reviews");
 
   <header>
     <img src="../img/logo.png" alt="Luxury Hotel">
-    <nav>
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
       <a href="home.php">Home</a>
       <a href="room.php">Room</a>
       <a href="meeting.php">Meeting</a>
       <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
+    
     <div class="user-menu">
       <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
         <i class="fa-solid fa-user"></i>
@@ -42,7 +47,7 @@ $query_reviews = mysqli_query($conn, "SELECT * FROM home_reviews");
     <div class="dropdown" id="dropdownMenu">
       <?php include 'status_menu.php'; ?>
     </div>
-  </header>
+</header>
 
   <section class="hero" id="home">
     <h1>
@@ -202,5 +207,6 @@ $query_reviews = mysqli_query($conn, "SELECT * FROM home_reviews");
   <script src="../js/home_learnmore.js"></script>
   <script src="../js/user-section.js"></script>
   <script src="../js/home_contactUs.js"></script>
+  <script src="../js/mobile_menu.js"></script>
 </body>
 </html>

@@ -134,6 +134,7 @@ if ($hasil_popularitas_meeting) {
     <link href="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.css" rel="stylesheet" media="all">
     <link href="css/theme.css" rel="stylesheet" media="all">
     <link href="css/custom-dashboard.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="mobile-admin.css">
 </head>
 
 <body>
@@ -303,9 +304,14 @@ if ($hasil_popularitas_meeting) {
     </div>
 
     <script src="js/vanilla-utils.js"></script>
-    <script src="vendor/bootstrap-5.3.8.bundle.min.js"></script>
-    <script src="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.min.js"></script>
-    <script src="vendor/chartjs/chart.umd.js-4.5.0.min.js"></script>
+<script src="vendor/bootstrap-5.3.8.bundle.min.js"></script>
+<script src="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.min.js"></script>
+
+<script src="js/bootstrap5-init.js"></script>
+
+<script src="js/main-vanilla.js"></script> 
+</body>
+</html>
 
     <script>
     const pendapatanLabels = <?php echo json_encode($pendapatan_labels); ?>;

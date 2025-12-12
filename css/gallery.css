@@ -85,7 +85,7 @@ nav a:hover {
 
 .dropdown {
   position: absolute;
-  top: 110%;
+  top: 70%;
   right: 0;
   background: #ffffff;
   border-radius: 12px;
@@ -291,3 +291,132 @@ h2 { animation-delay: 0.5s; }
 h3 { animation-delay: 0.7s; }
 p  { animation-delay: 0.9s; }
 
+/* =============================== */
+/* DEFAULT (DESKTOP) = HAMBURGER DISSEMBUNYIKAN */
+/* =============================== */
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #0026ff;
+    padding: 10px;
+}
+
+
+/* =============================== */
+/* MOBILE MODE (≤768px) */
+/* =============================== */
+@media screen and (max-width: 768px) {
+
+    /* Atur header supaya hamburger bisa di pojok kiri */
+    header {
+        padding: 15px 20px;
+        padding-left: 0 !important; /* biar hamburger mepet kiri */
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Hamburger tampil & posisinya di paling kiri */
+    .menu-toggle {
+        display: block;     /* tampil di mobile */
+        order: 1;
+        margin: 0;
+        padding-left: 8px;  /* sedikit jarak biar tidak nempel layar */
+    }
+
+    /* Logo setelah hamburger */
+    header img {
+        order: 2;
+        margin-left: 5px;
+    }
+
+    /* User menu tetap di kanan */
+    .user-menu {
+        order: 3;
+        margin-left: auto;
+    }
+
+    /* Nav disembunyikan dulu */
+    nav {
+        display: none;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        flex-direction: column;
+        text-align: left;
+        padding: 10px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+    }
+
+    /* Nav saat aktif (JS menambahkan .active) */
+    nav.active {
+        display: flex !important;
+    }
+
+    /* Style link di mobile */
+    nav a {
+        width: 100%;
+        margin: 0;
+        padding: 14px 20px;
+        border-radius: 0;
+        color: black;
+        background: white;
+        text-align: left;
+    }
+
+    nav a:hover {
+        background: #0026ff;
+        color: white;
+    }
+}
+@media screen and (max-width: 768px) {
+
+    /* FOOTER MOBILE */
+    footer { 
+        padding: 20px 20px; 
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-left, 
+    .footer-right { 
+        margin-bottom: 15px; 
+    }
+
+    .back-top { 
+        margin-left: 0; 
+    }
+}
+
+    
+    /* --- MENONAKTIFKAN ANIMASI DI MOBILE --- */
+    h1, h2, h3, p, header, .hero, .features, #gallery, .promo, footer, header img, nav a, .btn {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+    @media screen and (max-width: 768px) {
+    .background-container {
+        overflow-x: auto;        /* Bisa digeser kiri kanan */
+        overflow-y: hidden;
+        white-space: nowrap;     /* Biar konten memanjang */
+        padding: 0 0;            /* Biar tidak ketahan padding */
+    }
+
+    .background-container h1 {
+        display: inline-block;   /* Supaya bisa di-scroll */
+        font-size: 3.5rem;       /* Sesuaikan ukuran */
+        padding: 0 20px;         /* Jarak kiri kanan */
+        white-space: nowrap;     /* Tetap satu baris */
+    }
+}

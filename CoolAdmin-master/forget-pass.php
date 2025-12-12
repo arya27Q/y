@@ -1,8 +1,19 @@
 <?php
+// File forget-pass.php
+
+
+// File forget-pass.php
+
 // Sertakan konfigurasi database
 include_once '../php/config.php';
 
-// Inisialisasi variabel
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\SMTP;
+
+// KOREKSI PATH: Naik satu level (dari CoolAdmin-master) dan masuk ke vendor
+require '../vendor/autoload.php'; 
+
 $email = "";
 $message = "";
 $msg_type = ""; 
@@ -10,7 +21,7 @@ $msg_type = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    
+    // Validasi Email
     if (empty(trim($_POST["email"]))) {
         $message = "Silakan masukkan alamat email Anda.";
         $msg_type = "danger";
@@ -27,17 +38,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $param_email = $email;
 
             if (mysqli_stmt_execute($stmt)) {
+                
+                mysqli_stmt_bind_result($stmt, $user_id, $username);
                 mysqli_stmt_store_result($stmt);
+                mysqli_stmt_fetch($stmt); 
 
-              
                 if (mysqli_stmt_num_rows($stmt) == 1) {
-                  
                     
-                    $message = "Link untuk reset password telah dikirim ke <b>$email</b>. Silakan cek kotak masuk atau folder spam Anda.";
-                    $msg_type = "success";
+                    // ==========================================
+                    // START: LOGIKA TOKEN & PENGIRIMAN EMAIL
+                    // ==========================================
+
+                    // 1. BUAT TOKEN AMAN (WAJIB)
+                    $token = bin2hex(random_bytes(32)); 
+                    $expires = date("Y-m-d H:i:s", time() + 3600); // 1 jam
+
+                    $reset_link = "http://localhost/web-hotel/admin/reset-password.php?token=" . $token; 
+
+                    // 3. KIRIM EMAIL MENGGUNAKAN PHPMailer
+                    $mail = new PHPMailer(true);
+
+                    try {
+                        // KREDENSIAL SMTP AMBIL DARI TES ANDA YANG BERHASIL
+                        $mail->isSMTP(); 
+                        $mail->Host  = 'smtp.gmail.com'; 
+                        $mail->SMTPAuth  = true;  
+                        $mail->Username  = 'ayrandrapratama@gmail.com'; 
+                        $mail->Password  = 'sjjt ccdb uwnh tzae';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS; 
+                        $mail->Port  = 587;
+
+                        $mail->setFrom('ayrandrapratama@gmail.com', 'Luxury Hotel Admin'); 
+                        $mail->addAddress($email, $username); // Email Tujuan (dinamis dari input user)
+
+                        $mail->isHTML(true); 
+                        $mail->Subject = 'Permintaan Reset Password Admin Hotel';
+                        $mail->Body    = "Halo $username,<br><br>"
+                                       . "Kami menerima permintaan reset password. Silakan klik link berikut:<br><br>"
+                                       . "<a href='$reset_link'>Reset Password Saya</a><br><br>"
+                                       . "Link ini akan kedaluwarsa dalam 1 jam.<br>"
+                                       . "Terima kasih.";
+
+                        $mail->send();
+                        
+                        $message = "Link untuk reset password telah dikirim ke <b>$email</b>";
+                        $msg_type = "success";
+
+                    } catch (Exception $e) {
+                        // Jika pengiriman gagal (misalnya, masalah koneksi)
+                        error_log("Gagal mengirim email: " . $mail->ErrorInfo);
+                        $message = "Email gagal dikirim. Kesalahan: {$mail->ErrorInfo}";
+                        $msg_type = "danger";
+                    }
+
+                
                     
                 } else {
-                   
                     $message = "Email tersebut tidak terdaftar dalam sistem kami.";
                     $msg_type = "danger";
                 }
@@ -70,6 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 </head>
 
+
 <body>
     <div class="page-wrapper">
         <div class="page-content--bge5">
@@ -78,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="login-content">
                         <div class="login-logo text-center">
                             <a href="login.php">
-                                <img src="images/icon/logo.png" alt="CoolAdmin">
+                                <img src="../CoolAdmin-master/images/logo.png" alt="CoolAdmin">
                             </a>
                             <h3>Password Recovery</h3>
                             <p class="text-muted">Enter your email to reset your password</p>

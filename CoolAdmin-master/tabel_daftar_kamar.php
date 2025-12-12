@@ -34,6 +34,7 @@ if (!$result) {
     <link href="css/swiper-bundle-11.2.10.min.css" rel="stylesheet" media="all">
     <link href="vendor/perfect-scrollbar/perfect-scrollbar-1.5.6.css" rel="stylesheet" media="all">
     <link href="css/theme.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="mobile-admin.css">
 </head>
 <body>
 <div class="page-wrapper">

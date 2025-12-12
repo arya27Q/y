@@ -68,6 +68,7 @@ if (isset($_POST['simpan'])) {
     <title>Edit Admin</title>
     <link href="vendor/bootstrap-5.3.8.min.css" rel="stylesheet" media="all">
     <link href="css/theme.css" rel="stylesheet" media="all">
+    <link rel="stylesheet" href="mobile-admin.css">
     <style>
        body { background-color: #f5f5f5; }
         .card-edit {

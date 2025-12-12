@@ -451,3 +451,200 @@ from {
         margin-top: -50px; /* Disesuaikan agar tetap masuk ke banner di mobile */
     }
 }
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #0026ff;
+    padding: 10px;
+}
+
+
+/* =============================== */
+/* MOBILE MODE (≤768px) */
+/* =============================== */
+@media screen and (max-width: 768px) {
+
+
+    /* Atur header supaya hamburger bisa di pojok kiri */
+    header {
+        padding: 15px 20px;
+        padding-left: 0 !important; /* biar hamburger mepet kiri */
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 8px;
+    }
+       .background-img, .background {
+        height: 40vh;
+        padding: 10px;
+        background-position: center; 
+    }
+
+    .background-img h1, .background h1, 
+    .background-img h2, .background h2 {
+        font-size: 2.5rem !important;
+        margin: 0 !important;
+        padding: 0 10px;
+    }
+    /* Hamburger tampil & posisinya di paling kiri */
+    .menu-toggle {
+        display: block;     /* tampil di mobile */
+        order: 1;
+        margin: 0;
+        padding-left: 8px;  /* sedikit jarak biar tidak nempel layar */
+    }
+
+    /* Logo setelah hamburger */
+    header img {
+        order: 2;
+        margin-left: 5px;
+    }
+
+    /* User menu tetap di kanan */
+    .user-menu {
+        order: 3;
+        margin-left: auto;
+    }
+
+    /* Nav disembunyikan dulu */
+    nav {
+        display: none;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        flex-direction: column;
+        text-align: left;
+        padding: 10px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+        align-items: center;
+    }
+
+    /* Nav saat aktif (JS menambahkan .active) */
+    nav.active {
+        display: flex !important;
+    }
+
+    /* Style link di mobile */
+    nav a {
+        width: auto;
+        margin: 5px 0;
+        padding: 14px 20px;
+        border-radius: 20px;
+        color: black;
+        background: white;
+        text-align: center;
+        
+    }
+
+    nav a:hover {
+        background: #0026ff;
+        color: white;
+    }
+}
+/* ======================================= */
+/* MEDIA QUERY UTAMA (<= 768px) - Khusus Profil */
+/* ======================================= */
+@media screen and (max-width: 768px) {
+
+    /* --- HEADER (Hapus padding-left: 0 !important; yang merusak desktop) --- */
+    header {
+        padding: 15px 20px; /* Gunakan padding yang aman */
+        justify-content: space-between;
+        /* Hapus: padding-left: 0 !important; */
+    }
+
+    /* ... (Kode untuk .menu-toggle, nav, header img, dll. tetap sama) ... */
+
+    /* --- PROFILE BANNER & JUDUL --- */
+    .profile-banner {
+        height: 200px; /* Kurangi tinggi banner */
+    }
+
+    .profile-banner h1 {
+        font-size: 36px; /* Kurangi ukuran font */
+        text-align: center;
+    }
+
+    /* --- KONTEN PROFIL (Profile Card) --- */
+    
+    .bg {
+        padding: 40px 10px; /* Kurangi padding utama */
+    }
+
+    .profile-section {
+        /* Kurangi padding vertikal yang terlalu besar di desktop */
+        padding: 30px 10px; 
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .profile-section h2 {
+        font-size: 22px;
+        width: 100%;
+        margin-bottom: 20px;
+        padding: 10px 0;
+    }
+
+    .profile-card {
+        padding: 20px 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* --- FORMULIR (SOLUSI UTAMA) --- */
+    
+    form {
+        padding: 20px 10px;
+    }
+
+    .form-row {
+        /* Memaksa input menjadi kolom tunggal */
+        display: flex; /* Sudah ada, tapi dikuatkan */
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 0;
+    }
+
+    input {
+        /* Memastikan input mengambil lebar penuh di mobile */
+        width: 100%;
+        margin-bottom: 5px; 
+        box-sizing: border-box;
+    }
+    
+    .save-btn {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    /* --- FOOTER --- */
+    /* ... (Kode Footer yang sudah rapi tetap dipertahankan) ... */
+}
+@media screen and (max-width: 768px) {
+
+    /* FOOTER MOBILE */
+    footer { 
+        padding: 20px 20px; 
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-left, 
+    .footer-right { 
+        margin-bottom: 15px; 
+    }
+
+    .back-top { 
+        margin-left: 0; 
+    }
+}

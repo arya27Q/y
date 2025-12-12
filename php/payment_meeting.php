@@ -182,25 +182,30 @@ $total_semua = 0;
 </style>
 <body id="top">
 
-  <header>
+   <header>
     <img src="../img/logo.png" alt="Luxury Hotel">
-    <nav>
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
       <a href="home.php">Home</a>
-      <a href="reservasi_hotel.php">Room</a> 
-      <a href="meeting_reservasi.php">Meeting</a>
-       <a href="facilities.php">Facilities</a>
+      <a href="room.php">Room</a>
+      <a href="meeting.php">Meeting</a>
+      <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
-   <div class="user-menu">
-     <a class="a" href="#" id="userIcon">
-       <i class="fa-solid fa-user"></i>
-       <i class="fa-solid fa-caret-down"></i>
-     </a>
-   </div>
-   <div class="dropdown" id="dropdownMenu">
-     <?php include 'status_menu.php'; ?>
-   </div>
-  </header>
+    
+    <div class="user-menu">
+      <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
+        <i class="fa-solid fa-user"></i>
+        <i class="fa-solid fa-caret-down"></i>
+      </a>
+    </div>
+    <div class="dropdown" id="dropdownMenu">
+      <?php include 'status_menu.php'; ?>
+    </div>
+</header>
 
   <section class="background">
     <h1> PAYMENT </h1>
@@ -275,9 +280,28 @@ $total_semua = 0;
 </div>
 </div>
 
+  
   <footer>
-    </footer>
+    <div class="footer-container">
+      <div class="footer-left">
+        <p>&copy; Luxury Hotel 2025</p>
+        <p>Surabaya, Indonesia</p>
+        <p>Your Comfort, Our Priority</p>
+      </div>
+      <div class="footer-center">
+        <a href="#top" class="btn back-top">
+          <i class="fa-solid fa-arrow-up"></i> Back to Top
+        </a>
+      </div>
+      <div class="footer-right">
+        <p><i class="fa-brands fa-instagram"></i> @luxuryhotel</p>
+        <p><i class="fa-solid fa-phone"></i> 6289566895155</p>
+        <p><i class="fa-solid fa-envelope"></i> luxuryhotelsby@gmail.com</p>
+      </div>
+    </div>
+  </footer>
 
+  <script src="../js/mobile_menu.js"></script>
  <script>
 const payBtn = document.querySelector(".pay-btn");
 const paymentMenu = document.getElementById("paymentMenu");

@@ -23,25 +23,30 @@ $query_rooms = mysqli_query($conn, "SELECT * FROM room_list");
 
 <body id="top">
  
-  <header>
+   <header>
     <img src="../img/logo.png" alt="Luxury Hotel">
-    <nav>
+    
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+    <nav id="mainNav">
       <a href="home.php">Home</a>
-      <a href="reservasi_hotel.php">Room</a>
-      <a href="meeting_reservasi.php">Meeting</a>
+      <a href="room.php">Room</a>
+      <a href="meeting.php">Meeting</a>
       <a href="facilities.php">Facilities</a>
       <a href="about.php">About us</a>
     </nav>
+    
     <div class="user-menu">
-      <a class="a" href="#" id="userIcon">
+      <a class="a" href="#" id="userIcon" style="color:#0026ff!important;">
         <i class="fa-solid fa-user"></i>
         <i class="fa-solid fa-caret-down"></i>
       </a>
-      <div class="dropdown" id="dropdownMenu">
-        <?php include 'status_menu.php'; ?>
-      </div>
     </div>
-  </header>
+    <div class="dropdown" id="dropdownMenu">
+      <?php include 'status_menu.php'; ?>
+    </div>
+</header>
 
   <section class="background" id="home">
     <h1><?php echo $info['judul_hero']; ?></h1>
@@ -116,5 +121,6 @@ $query_rooms = mysqli_query($conn, "SELECT * FROM room_list");
     </div>
   </footer>
   <script src="../js/user-section.js"></script>
+  <script src="../js/mobile_menu.js"></script>
 </body>
 </html>

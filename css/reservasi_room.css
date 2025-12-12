@@ -467,3 +467,250 @@ button:hover::after,  .a:hover::after, .back-top:hover::after {
 footer {
   animation: fadeIn 2s ease forwards;
 }
+
+.menu-toggle {
+    display: none; 
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #0026ff;
+    padding: 10px;
+}
+
+/* ======================================= */
+/* MEDIA QUERY UTAMA (<= 768px) - SEMUA ATURAN DI SINI */
+/* ======================================= */
+@media screen and (max-width: 768px) {
+
+    /* --- HEADER & NAVIGASI --- */
+    header {
+         padding-left: 0 !important; 
+        padding: 15px 20px; 
+        align-items: center;
+        justify-content: space-between;
+        /* Hapus padding-left: 0 !important; untuk menghindari konflik desktop */
+    }
+
+    /* Tampilkan tombol Hamburger & atur urutan */
+    .menu-toggle {
+        display: block;     /* tampil di mobile */
+        order: 1;
+        margin: 0;
+        padding-left: 8px;
+        /* Hapus padding vertikal yang tidak perlu, gunakan default */
+    }
+
+    /* Logo setelah hamburger */
+    header img {
+        order: 2;
+        margin-left: 5px;
+    }
+
+    /* User menu tetap di kanan */
+    .user-menu {
+        order: 3;
+        margin-left: auto;
+    }
+
+    /* Navigasi mobile (tersembunyi default) */
+       nav {
+        display: none;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: #fff;
+        flex-direction: column;
+        text-align: left;
+        padding: 10px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        z-index: 999;
+        align-items: center;
+    }
+
+    /* Nav saat aktif (JS menambahkan .active) */
+    nav.active {
+        display: flex !important;
+    }
+
+    /* Style link di mobile */
+    nav a {
+        width: auto;
+        margin: 5px 0;
+        padding: 14px 20px;
+        border-radius: 20px;
+        color: black;
+        background: white;
+        text-align: center;
+        
+    }
+    nav a:hover {
+        background: #0026ff;
+        color: white;
+    }
+
+    .dropdown {
+        right: 20px;
+        top: 60px;
+    }
+
+    /* --- HERO SECTION & TITLES --- */
+    .background, .background-img {
+        height: 40vh; /* Tinggi Hero dikurangi */
+        padding: 10px;
+        background-position: center;
+    }
+
+    .background h1, .background h2, 
+    .background-img h1, .background-img h2 {
+        font-size: 2.5rem !important; /* Judul Hero dikecilkan */
+        margin: 0 !important;
+        padding: 0 10px;
+    }
+
+    .why {
+        padding: 40px 20px;
+    }
+
+    .stay {
+        font-size: 16px;
+    }
+
+    .hotel-title {
+        padding: 15px 10px;
+    }
+
+    /* --- RESERVASI ROOM LAYOUT (INTI PERBAIKAN) --- */
+
+ @media screen and (max-width: 768px) {
+    /* --- HEADER (Dipertahankan agar Hamburger tetap rapi) --- */
+    header {
+        padding: 15px 20px;
+        align-items: center; 
+        justify-content: space-between;
+        /* PASTIKAN TIDAK ADA padding-left: 0 !important; di sini */
+    }
+
+    /* ... (Kode untuk .menu-toggle, nav, dll. tetap sama) ... */
+    
+    /* --- RESERVASI ROOM LAYOUT (INTI PERBAIKAN) --- */
+
+    .reservation {
+        width: 95%; 
+        max-width: none; /* Hilangkan max-width desktop */
+        padding: 10px;
+        margin: 10px auto;
+    }
+
+    .hotel-info {
+        /* MEMAKSA LAYOUT BERBALIK KE VERTIKAL */
+        display: flex !important; /* Pastikan flex aktif */
+        flex-direction: column !important; 
+        gap: 20px;
+    }
+
+    /* --- FORM TANGGAL CHECK-IN/OUT --- */
+    .date-form {
+        width: 100%; 
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .date-form label {
+        display: flex !important; 
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        font-size: 14px;
+        /* Tambahkan lebar tetap agar input tidak berdesakan */
+        min-width: 100%;
+    }
+
+    .date-form input {
+        width: 55%; /* Input mengambil 55% lebar */
+        box-sizing: border-box;
+        margin-left: 8px;
+    }
+
+    /* --- BOOKING LIST (Daftar Kamar) --- */
+    .booking-list {
+        width: 100%;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .room-card {
+        /* Memaksa kartu kamar mengambil lebar penuh */
+        width: 95% !important; 
+        max-width: none; 
+        margin: 0 auto; 
+        box-sizing: border-box;
+        
+        /* Tambahkan flex agar elemen di dalamnya (gambar, teks) rapi di tengah */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .room-card img {
+        max-width: 90%; 
+        height: auto;
+    }
+
+    /* --- MY BOOKING (KERANJANG) --- */
+    .my-booking {
+        /* Hapus semua properti yang berhubungan dengan desktop sticky */
+        position: static !important; 
+        width: 100% !important; 
+        max-width: none !important; 
+        margin-top: 20px;
+        box-sizing: border-box;
+    }
+
+    .my-booking #kode_promo_input {
+        width: 100% !important; 
+        box-sizing: border-box;
+    }
+
+    .my-booking .btn-book {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* ... (Sisa kode Media Query untuk Footer, Animasi, dll. tetap sama) ... */
+}
+    
+    /* --- MENONAKTIFKAN ANIMASI DI MOBILE --- */
+    h1, h2, h3, p, header, .hero, .features, #gallery, .promo, footer, header img, nav a, .btn {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+    }
+    @media screen and (max-width: 768px) {
+
+    /* FOOTER MOBILE */
+    footer { 
+        padding: 20px 20px; 
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .footer-left, 
+    .footer-right { 
+        margin-bottom: 15px; 
+    }
+
+    .back-top { 
+        margin-left: 0; 
+    }
+  }
+
+} /* <--- PENUTUP BLOK MEDIA QUERY UTAMA */
+

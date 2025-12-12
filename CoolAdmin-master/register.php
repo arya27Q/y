@@ -186,6 +186,54 @@ include 'create_account.php';
         }
         .alert-success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+
+        @media screen and (max-width: 768px) {
+
+.login-checkbox label {
+    margin: 0 !important; 
+    padding: 0;
+    display: inline-flex !important; 
+    align-items: center; 
+}
+
+.login-checkbox input[type="checkbox"] {
+    margin-right: 4px !important; 
+    margin-left: 0 !important;
+}
+.login-checkbox {
+    justify-content: flex-start !important; 
+    gap: 20px; 
+}
+
+.login-checkbox label:nth-child(2) {
+    margin-left: auto !important; 
+}
+.login-checkbox {
+    padding-left: 0 !important; 
+    padding-right: 0 !important;
+    justify-content: flex-start !important; 
+    gap: 15px; 
+}
+
+.login-checkbox label:nth-child(1) {
+    margin: 0 !important; 
+    padding: 0 !important; 
+    display: flex !important; 
+    align-items: center; 
+    margin-right: auto !important; 
+}
+
+.login-checkbox input[type="checkbox"] {
+    margin-left: 0 !important;
+    margin-right: 4px !important; 
+}
+
+.login-checkbox label:nth-child(2) {
+    margin-left: auto !important; 
+    padding: 0;
+}
+        }
     </style>
 </head>
 
