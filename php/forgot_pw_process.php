@@ -5,7 +5,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Include konfigurasi database
-include_once '../php/config.php';
+include_once 'config.php';
 
 // PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;

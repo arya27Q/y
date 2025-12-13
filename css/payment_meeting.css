@@ -564,7 +564,7 @@ a:hover {
     }
 }
 
-
+@media screen and (max-width: 768px) {
 
 .payment-section {
     
@@ -647,6 +647,7 @@ a:hover {
 #formContent input {
     width: 100%;
 }
+}
 @media screen and (max-width: 768px) {
 
     footer { 
@@ -670,23 +671,4 @@ a:hover {
 
     
     /* --- MENONAKTIFKAN ANIMASI DI MOBILE --- */
-    h1, h2, h3, p, header, .hero, .features, #gallery, .promo, footer, header img, nav a, .btn {
-        opacity: 1 !important;
-        transform: none !important;
-        animation: none !important;
-    }
-    @media screen and (max-width: 768px) {
-    .background-container {
-        overflow-x: auto;        /* Bisa digeser kiri kanan */
-        overflow-y: hidden;
-        white-space: nowrap;     /* Biar konten memanjang */
-        padding: 0 0;            /* Biar tidak ketahan padding */
-    }
-
-    .background-container h1 {
-        display: inline-block;   /* Supaya bisa di-scroll */
-        font-size: 3.5rem;       /* Sesuaikan ukuran */
-        padding: 0 20px;         /* Jarak kiri kanan */
-        white-space: nowrap;     /* Tetap satu baris */
-    }
-}
+  
